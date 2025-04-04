@@ -1,0 +1,74 @@
+﻿.storeheader {
+    text-align: center;
+}
+
+.search-container {
+    position: relative; /* Establishes a positioning context for the `.search-icon` to align itself within this container */
+    margin-bottom: 25px; /*SPace between searchbar and our table data*/
+}
+
+.search-icon {
+    position: absolute; /* Positions the icon relative to the nearest positioned ancestor (the `search-container`) */
+    top: 50%; /* Moves the icon halfway down the height of the `search-container` */
+    left: 8px; /* Positions the icon 8px from the left edge of the `search-container` */
+    transform: translateY(-50%); /* Vertically centers the icon by shifting it up*/
+    font-size: 16px; /* Sets the size of the icon */
+    color: gray; /* Change the color of the icon */
+}
+
+.search-bar {
+    width: 100%;
+    border-radius: 7px;
+    border-right-style: none;
+    border-left-style: none;
+    border: none;
+    border-block-color: lightgray;
+    background-color: lightgray;
+    padding: 8px;
+    padding-left: 30px;
+}
+
+    .search-bar:focus {
+        background-color: white; /* Background changes to white, makes it clearer that it's in focus*/
+        outline: none; /*Needed for box-shadow*/
+        box-shadow: 0px 0px 7px black; /* Subtle black glow - [horizontal-offset] [vertical-offset] [blur-radius] */
+    }
+
+.store-clearances {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-offer {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    background-color: #f9f9f9;
+}
+
+    .product-offer h3 {
+        margin: 10px 0;
+        font-size: 1.2em;
+    }
+
+    .product-offer p {
+        margin: 5px 0;
+    }
+
+.product-offer {
+    position: relative;
+}
+
+.image-container {
+    /*display: none;*/ /* Skjul billedet som standard */
+    /*opacity: 0;*/ /* Start med at billede er usynligt */
+    transition: opacity 0.9s ease; /* Tilføj overgangseffekt på opacity */
+}
+
+/*.product-offer:hover .image-container {
+    display: block;*/ /* Vis billedet når musen er over produktet */
+    /*opacity: 1;*/ /* Gør billedet synligt */
+/*}*/

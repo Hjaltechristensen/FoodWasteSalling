@@ -1,0 +1,94 @@
+﻿@using FoodWasteSalling.Shared.Interfaces;
+@using FoodWasteSalling.Shared.Models;
+@inject IProductService productService
+
+@page "/products"
+
+<div class="search-container">
+	<i class="search-icon fa fa-search"></i>
+	<input class="search-bar"
+		   placeholder="Søg"
+		   type="text"
+		   @bind="productSearch"
+		   @bind:event="oninput" />
+</div>
+
+<div class="store-clearances">
+	@foreach (var product in filteredProducts)
+	{
+		<div class="product-offer">
+			<h3>@product.Product.Description</h3>
+			<p>Pris: @product.Offer.OriginalPrice</p>
+			<p>Tilbuds pris: @product.Offer.NewPrice</p>
+			<p>Besparelse i DKK: @product.Offer.Discount</p>
+			<p>Besparelse i %: @product.Offer.Discount%</p>
+
+			<div class="image-container">
+				<img class="product-image"
+					 src="@product.Product.Image"
+					 alt="Product Image"
+					 style="max-width: 100px; max-height: 100px;" />
+			</div>
+		</div>
+	}
+</div>
+
+@code {
+	private EveryFoodWaste store;
+
+	private List<Clearance> filteredProducts = new List<Clearance>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		store = await productService.GetProductsAsync(StoreId);
+		filteredProducts = new List<Clearance>(store.Clearances);
+	}
+	private string _productSearch; //Private felt som gemmer værdien af inputtet fra søgningen
+	private string productSearch   //Bundet til input-feltet for søgning
+	{
+		get => _productSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		set
+		{
+			_productSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
+			Console.WriteLine($"Søgestreng ændret til: {value}");
+			FilterProducts();      //Kalder FilterEmployees() for at opdatere listen med det samme
+		}
+	}
+
+	private void FilterProducts()
+	{
+		if (string.IsNullOrWhiteSpace(productSearch))
+		{
+			filteredProducts = new List<Clearance>(store.Clearances);
+		}
+		else
+		{
+			var storeSearchToLower = productSearch.ToLower();
+			filteredProducts =
+			store.Clearances.Where(c => c.Product.Description.ToLower().Contains(storeSearchToLower) ||
+			(c.Product.Categories.ToString().Contains(storeSearchToLower)) ||
+			(c.Offer.Currency.ToLower().Contains(storeSearchToLower)) ||
+			(c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
+			(c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
+			(c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
+			(c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
+			(c.Offer.EndTime.ToString().Contains(storeSearchToLower))).ToList();
+		}
+	}
+
+	private async Task ShowImage(Clearance item)
+	{
+		if (!item.IsImageVisible) // Kun hvis billedet ikke allerede er synligt
+		{
+			await Task.Delay(800);  // Vent i 2 sekunder før visning af billede
+			item.IsImageVisible = true; // Gør billedet synligt
+			StateHasChanged(); // Trigger en opdatering af UI
+		}
+	}
+
+	private void HideImage(Clearance item)
+	{
+		item.IsImageVisible = false;
+		StateHasChanged();  // Trigger a re-render
+	}
+}

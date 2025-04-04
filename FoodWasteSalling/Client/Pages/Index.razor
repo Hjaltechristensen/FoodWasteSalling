@@ -1,0 +1,112 @@
+﻿@using FoodWasteSalling.Shared.Models;
+@using FoodWasteSalling.Shared.Interfaces;
+@page "/"
+
+<div class="search-container">
+	<i class="search-icon fa fa-search"></i>
+	<input class="search-bar"
+	placeholder="Søg"
+	type="text"
+	@bind="storeSearch"
+	@bind:event="oninput"/>
+</div>
+
+<div>
+	<p>Indtast postnummer</p>
+	<input type="number" placeholder="Postnummer" @bind-value="zipcode"/>
+	<button @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+</div>
+
+@if (filteredStores == null)
+{
+	<p><em>Ingen butikker fundet.</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Navn</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var store in filteredStores)
+			{
+				<tr>
+					<!-- Gør hele rækken til en klikbar knap -->
+					<td class="cell">
+						<button class="storebutton" @onclick="() => ShowStoreDetails(store.Store.Id)">
+							@store.Store.Name
+						</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+	@if (selectedStore != null)
+	{
+		<div class="store-details">
+			<h3>@selectedStore.Store.Name</h3>
+			<p>Brand: @selectedStore.Store.Brand</p>
+			<p>Adresse: @selectedStore.Store.Address</p>
+		</div>
+	}
+}
+
+
+
+@code {
+
+	[Inject] 
+	IOfferService OfferService { get; set; } = null!;
+	[Inject] 
+	private NavigationManager Navigation { get; set; } = null!;
+	private EveryFoodWaste? selectedStore;
+	private List<EveryFoodWaste> everyThing = new List<EveryFoodWaste>();
+	private List<EveryFoodWaste> filteredStores = new List<EveryFoodWaste>();
+	private int zipcode = 8000;
+
+	private string _storeSearch; //Private felt som gemmer værdien af inputtet fra søgningen
+	private string storeSearch   //Bundet til input-feltet for søgning
+	{
+		get => _storeSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		set
+		{
+			_storeSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
+			Console.WriteLine($"Søgestreng ændret til: {value}");
+			FilterStores();      //Kalder FilterEmployees() for at opdatere listen med det samme
+		}
+	}
+
+	private void ShowStoreDetails(string storeId)
+	{
+		Navigation.NavigateTo($"/store/{storeId}");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await SearchOnZipcode(zipcode);
+	}
+
+	private async Task SearchOnZipcode(int zipcode)
+	{
+		everyThing = await OfferService.GetStoresAsync(zipcode);
+		filteredStores = everyThing;
+	}
+
+	private void FilterStores()
+	{
+		if (string.IsNullOrWhiteSpace(storeSearch))
+		{
+			filteredStores = new List<EveryFoodWaste>(everyThing);
+		}
+		else
+		{
+			var storeSearchToLower = storeSearch.ToLower();
+			filteredStores =
+			everyThing.Where(c => c.Store.Name.ToLower().Contains(storeSearchToLower) ||
+			(c.Store.Brand.ToLower().Contains(storeSearchToLower))).ToList();
+		}
+	}
+}
