@@ -6,6 +6,5 @@ namespace FoodWasteSalling.Shared.Interfaces
 	{
 		Task<List<EveryFoodWaste>> GetStoresAsync(int zipcode);
 		Task<EveryFoodWaste> GetStoreByIdAsync(string storeId);
-
 	}
 }

@@ -10,9 +10,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient<IOfferService, OfferService>();
 
+var baseUrl = builder.Configuration["SallingGroupApi:BaseUrl"];
+if (string.IsNullOrEmpty(baseUrl))
+{
+	throw new ArgumentNullException("SallingGroupApi:BaseUrl", "Base URL for Salling Group API is not configured.");
+}
+
 builder.Services.AddHttpClient<IOfferService, OfferService>(client =>
 {
-	client.BaseAddress = new Uri(builder.Configuration["SallingGroupApi:BaseUrl"]);
+	client.BaseAddress = new Uri(baseUrl);
 	client.DefaultRequestHeaders.Add("Authorization", $"{builder.Configuration["SallingGroupApi:ApiKey"]}");
 });
 

@@ -2,21 +2,21 @@
 @using FoodWasteSalling.Shared.Interfaces;
 @page "/stores"
 
-<div class="search-container">
-	<i class="search-icon fa fa-search"></i>
-	<input class="search-bar"
-	placeholder="Søg"
-	type="text"
-	@bind="storeSearch"
-	@bind:event="oninput"/>
-</div>
-
 <div class="zipcode-search">
 	<label for="zipcode-input">Indtast postnummer</label>
 	<div class="input-group">
 		<input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
 		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
 	</div>
+</div>
+
+<div class="search-container">
+	<i class="search-icon fa fa-search"></i>
+	<input class="search-bar"
+		   placeholder="Søg"
+		   type="text"
+		   @bind="storeSearch"
+		   @bind:event="oninput" />
 </div>
 
 @if (filteredStores == null)
@@ -29,7 +29,7 @@ else
 		@foreach (var store in filteredStores)
 		{
 			<button class="store-card" @onclick="() => ShowStoreDetails(store.Store.Id)">
-				<h4>@store.Store.Name</h4>
+				<h4>@store?.Store?.Name</h4>
 			</button>
 		}
 	</div>
@@ -37,9 +37,9 @@ else
 	@if (selectedStore != null)
 	{
 		<div class="store-details">
-			<h3>@selectedStore.Store.Name</h3>
-			<p><strong>Brand:</strong> @selectedStore.Store.Brand</p>
-			<p><strong>Adresse:</strong> @selectedStore.Store.Address</p>
+			<h3>@selectedStore?.Store?.Name</h3>
+			<p><strong>Brand:</strong> @selectedStore?.Store?.Brand</p>
+			<p><strong>Adresse:</strong> @selectedStore?.Store?.Address</p>
 		</div>
 	}
 }

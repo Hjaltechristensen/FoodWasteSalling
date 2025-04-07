@@ -12,11 +12,11 @@
 else
 {
 	<div class="store-header">
-		<h2>@store.Store.Name</h2>
+		<h2>@store?.Store?.Name</h2>
 		<div class="store-address">
-			<p><strong>By:</strong> @store.Store.Address.City</p>
-			<p><strong>Postnummer:</strong> @store.Store.Address.Zip</p>
-			<p><strong>Adresse:</strong> @store.Store.Address.Street</p>
+			<p><strong>By:</strong> @store?.Store?.Address?.City</p>
+			<p><strong>Postnummer:</strong> @store?.Store?.Address?.Zip</p>
+			<p><strong>Adresse:</strong> @store?.Store?.Address?.Street</p>
 		</div>
 	</div>
 
@@ -37,14 +37,14 @@ else
 		<button class="product-button" @onclick="() => ShowProductDetails(product.Product.Ean)">
 			<div class="product-offer">
 				<div class="product-info">
-					<h3 class="product-title">@product.Product.Description</h3>
-					<p class="original-price"><s>@product.Offer.OriginalPrice kr</s></p>
-					<p class="new-price">@product.Offer.NewPrice kr</p>
-					<p class="discount-amount">Spar @product.Offer.Discount kr (@product.Offer.PercentDiscount%)</p>
+					<h3 class="product-title">@product?.Product?.Description</h3>
+					<p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
+					<p class="new-price">@product?.Offer?.NewPrice kr</p>
+					<p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
 				</div>
 				<div class="image-container">
 					<img class="product-image"
-					src="@product.Product.Image"
+					src="@product?.Product?.Image"
 					alt="Product Image" />
 				</div>
 			</div>
@@ -56,8 +56,8 @@ else
 
 @code {
 	[Parameter] public string StoreId { get; set; } = null!;
-	private EveryFoodWaste store;
-	private string currentUri;
+	private EveryFoodWaste store = null!;
+	private string currentUri = null!;
 
 	private List<Clearance> filteredProducts = new List<Clearance>();
 
@@ -128,5 +128,4 @@ else
 		item.IsImageVisible = false;
 		StateHasChanged();  // Trigger a re-render
 	}
-
 }

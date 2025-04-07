@@ -6,14 +6,9 @@ namespace FoodWasteSalling.Server.Controllers
 {
 	[Route("api/stores")]
 	[ApiController]
-	public class StoreController : Controller
+	public class StoreController(IOfferService offerService) : Controller
 	{
-		private readonly IOfferService _offerService;
-
-		public StoreController(IOfferService offerService)
-		{
-			_offerService = offerService;
-		}
+		private readonly IOfferService _offerService = offerService;
 
 		[HttpGet]
 		[Route("zipcode/{zipcode}")]

@@ -1,7 +1,6 @@
 ﻿@using FoodWasteSalling.Shared.Interfaces;
 @using FoodWasteSalling.Shared.Models;
 @inject IOfferService offerService
-@inject IProductService productService
 @inject NavigationManager Navigation
 
 @page "/products"
@@ -28,20 +27,20 @@
 <div class="store-clearances">
 	@foreach (var product in filteredProducts)
 	{
-		var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product.Ean == product.Product.Ean))?.Store;
+		var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product?.Ean == product?.Product?.Ean))?.Store;
 		if (store != null)
 		{
 			<button class="product-button" @onclick="() => ShowProductDetails(product.Product.Ean, store.Id)">
 				<div class="product-offer">
 					<div class="product-info">
-						<h3 class="product-title">@product.Product.Description</h3>
-						<p class="original-price"><s>@product.Offer.OriginalPrice kr</s></p>
-						<p class="new-price">@product.Offer.NewPrice kr</p>
-						<p class="discount-amount">Spar @product.Offer.Discount kr (@product.Offer.PercentDiscount%)</p>
+						<h3 class="product-title">@product?.Product?.Description</h3>
+						<p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
+						<p class="new-price">@product?.Offer?.NewPrice kr</p>
+						<p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
 					</div>
 					<div class="image-container">
 						<img class="product-image"
-						src="@product.Product.Image"
+						src="@product?.Product?.Image"
 						alt="Product Image" />
 					</div>
 				</div>
@@ -56,7 +55,7 @@
 	private List<EveryFoodWaste> allStores = new List<EveryFoodWaste>(); // Liste til at gemme butikkerne
 	private List<Clearance> filteredProducts = new List<Clearance>();
 	private int zipcode = 8000;
-	private string currentUri;
+	private string? currentUri;
 
 	private async Task SearchOnZipcode(int zipcode)
 	{

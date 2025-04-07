@@ -2,7 +2,7 @@
 {
 	public class EveryFoodWaste
 	{
-		public List<Clearance> Clearances { get; set; }
-		public Store Store { get; set; }
+		public List<Clearance>? Clearances { get; set; }
+		public Store? Store { get; set; }
 	}
 }

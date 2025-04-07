@@ -1,7 +1,7 @@
 .top-navbar {
     width: 100%;
-    background-color: #2d3748;
-    padding: 1rem 2rem;
+    background-color: white;
+    padding: 0.01rem 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
@@ -10,38 +10,52 @@
 
 .navbar-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Centrerer indholdet i forhold til skærmen */
     align-items: center;
-    max-width: 1200px;
+    max-width: 1200px; /* Max bredde */
+    width: 100%; /* Gør navbaren fuld bredde */
     margin: 0 auto;
-    flex-wrap: wrap;
 }
 
 .navbar-logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #f7fafc;
-    text-decoration: none;
+    margin-right: auto; /* Sørger for, at logoet er til venstre */
 }
 
-.navbar-menu ul {
-    list-style: none;
+.logo-image {
+    max-width: 200px; /* Juster størrelsen på logoet */
+    height: auto; /* Sørger for, at billedet bevarer sin proportion */
+}
+
+/* Menuen */
+.navbar-menu {
     display: flex;
-    gap: 2rem;
-    margin: 0;
-    padding: 0;
+    justify-content: center; /* Centrerer menuen */
 }
 
-.navbar-menu li a {
-    color: #edf2f7;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.2s ease-in-out;
-}
-
-    .navbar-menu li a:hover {
-        color: #63b3ed;
+    .navbar-menu ul {
+        list-style: none;
+        display: flex;
+        font-weight: bold;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
     }
+
+    .navbar-menu li a {
+        color: #2d3748;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: color 0.2s ease-in-out;
+        display: inline-block; /* Gør linket til et blok-element for at kunne tilføje padding */
+        padding: 35px 25px; /* Skaber en usynlig klikbar zone rundt om linket */
+        border-radius: 5px; /* (Valgfrit) Runder hjørnerne af */
+    }
+
+        .navbar-menu li a:hover {
+            color: #63b3ed;
+            background-color: white; /* (Valgfrit) Ændrer baggrundsfarve ved hover */
+            cursor: pointer; /* Ændrer musemarkøren til en hånd ved hover */
+        }
 
 /* Responsive design */
 @media (max-width: 768px) {
