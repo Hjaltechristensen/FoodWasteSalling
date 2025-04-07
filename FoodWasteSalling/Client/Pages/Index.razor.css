@@ -18,8 +18,8 @@
     border-right-style: none;
     border-left-style: none;
     border: none;
-    border-block-color: lightgray;
-    background-color: lightgray;
+    border-block-color: #f1f5f9;
+    background-color: #f1f5f9;
     padding: 8px;
     padding-left: 30px;
 }
@@ -30,41 +30,105 @@
         box-shadow: 0px 0px 7px black; /* Subtle black glow - [horizontal-offset] [vertical-offset] [blur-radius] */
     }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
+.zipcode-search {
+    max-width: 400px;
+    margin: 2rem auto 1rem auto;
+    text-align: center;
+    font-family: sans-serif;
 }
 
-    .table th, .table td {
-        padding: 4px;
-        text-align: center;
-    }
-
-    .table th {
-        background-color: lightgray;
+    .zipcode-search label {
         font-weight: bold;
-        border: 1px solid #ddd;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #444;
     }
 
-    .table td {
-        border: 1px solid #ddd;
-        transition: background-color 0.3s ease, transform 0.2s ease; /* Gør hover-effekten mere flydende */
-    }
-
-    .table tbody tr:nth-child(odd) td {
-        background-color: white; /* Hvid for ulige rækker */
-    }
-
-    .table tbody tr:nth-child(even) td {
-        background-color: #f2f2f2; /* Lys grå for lige rækker */
-    }
-
-    /*Hover effekten*/
-    .table tbody tr:hover {
-        cursor: pointer; /* Skift cursor til hånd */
-        border: 0.1rem solid darkgray; /* Tilføjer en sort kant ved hover */
-    }
-.storebutton {
-    border: none;
-    background: none;
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
 }
+
+    .input-group input[type="number"] {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 150px;
+    }
+
+.btn-search {
+    padding: 0.5rem 1rem;
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .btn-search:hover {
+        background-color: #2d3748;
+    }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.no-results {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+.store-list {
+    display: grid;
+    gap: 1rem;
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.store-card {
+    width: 100%;
+    padding: 1rem;
+    background-color: #edf2f7;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .store-card:hover {
+        background-color: #e2e8f0;
+    }
+
+    .store-card h4 {
+        margin: 0;
+        color: #2d3748;
+        font-size: 1.1rem;
+    }
+
+.store-details {
+    margin: 2rem auto;
+    max-width: 600px;
+    background-color: #f7fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: sans-serif;
+}
+
+    .store-details h3 {
+        margin-top: 0;
+        color: #2b6cb0;
+    }
+
+    .store-details p {
+        margin: 0.4rem 0;
+        color: #444;
+    }

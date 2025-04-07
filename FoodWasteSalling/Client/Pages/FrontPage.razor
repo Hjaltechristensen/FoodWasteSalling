@@ -1,0 +1,33 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<div class="homepage-container">
+    <h1>Velkommen til Salling Group Tilbudsoversigt</h1>
+    <p>Vælg hvad du vil søge efter:</p>
+
+    <div class="homepage-options">
+        <button class="homepage-box" @onclick="NavigateToStores">
+
+            <h2>Find butik</h2>
+            <p>Søg efter butikker i dit område via postnummer</p>
+        </button>
+
+        <button class="homepage-box" @onclick="NavigateToProducts">
+            <h2>Find produkt</h2>
+            <p>Se hvilke produkter der er på tilbud</p>
+        </button>
+    </div>
+</div>
+
+@code {
+    private void NavigateToStores()
+    {
+        NavigationManager.NavigateTo("/stores");
+    }
+    private void NavigateToProducts()
+    {
+		NavigationManager.NavigateTo("/products");
+    }
+
+}
+

@@ -1,0 +1,72 @@
+﻿@using FoodWasteSalling.Shared.Interfaces;
+@using FoodWasteSalling.Shared.Models;
+@page "/productdetails/{Ean}/{StoreId}/{CurrentUri}"
+@inject NavigationManager Navigation
+@inject IOfferService OfferService
+
+<div class="product-card">
+    <div class="product-header">
+        <img class="product-image" src="@product?.Image" alt="Product Image" />
+        <div>
+            <h1 class="store-name">@store?.Store.Name</h1>
+            <h3 class="product-description">@product?.Description</h3>
+        </div>
+    </div>
+
+    <div class="product-details">
+        <p><strong>Gammel pris:</strong> <s>@clearance?.Offer.OriginalPrice kr</s></p>
+        <p><strong>Ny pris:</strong> @clearance?.Offer.NewPrice kr</p>
+        <p><strong>Besparelse i %:</strong> @clearance?.Offer.PercentDiscount %</p>
+        <p><strong>Besparelse i DKK:</strong> @clearance?.Offer.Discount kr</p>
+        <p><strong>Antal på lager:</strong> @clearance?.Offer.Stock</p>
+        <p><strong>Start tidspunkt:</strong> @clearance?.Offer.StartTime</p>
+        <p><strong>Slut tidspunkt(udløbsdato):</strong> @clearance?.Offer.EndTime</p>
+        <p><strong>Oprettet:</strong> @clearance?.Offer.LastUpdate</p>
+    </div>
+
+    <button class="btn-back" @onclick="GoBack">← Tilbage</button>
+</div>
+
+
+@code {
+    [Parameter]
+    public string StoreId { get; set; } = null!;
+    [Parameter]
+    public string Ean { get; set; } = null!;
+    [Parameter]
+    public string CurrentUri { get; set; } = null!;
+
+    private EveryFoodWaste? store;
+    private Clearance? clearance;
+    private Product? product;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        store = await OfferService.GetStoreByIdAsync(StoreId);
+        clearance = store.Clearances.FirstOrDefault(c => c.Product.Ean == Ean);
+        product = clearance?.Product.Ean == Ean ? clearance.Product : null;
+
+        // Dekod det tidligere URI, hvis nødvendigt
+        var decodedUri = Uri.UnescapeDataString(CurrentUri);
+
+        Console.WriteLine($"EAN: {Ean}");
+        Console.WriteLine($"StoreId: {StoreId}");
+        Console.WriteLine($"Previous URI: {decodedUri}");
+
+        // Din logik til at håndtere den tidligere URI, EAN, og StoreId.
+    }
+
+	private void GoBack()
+	{
+        // Naviger tilbage til den forrige URI
+        if (!string.IsNullOrEmpty(CurrentUri))
+        {
+            Navigation.NavigateTo(CurrentUri);
+        }
+        else
+        {
+            Navigation.NavigateTo("/");
+        }
+	}
+}

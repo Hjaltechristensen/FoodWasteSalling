@@ -3,7 +3,7 @@ using FoodWasteSalling.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 
-namespace FoodWasteSalling.Server.Services
+namespace FoodWasteSalling.Client.Services
 {
 	public class OfferService : IOfferService
 	{

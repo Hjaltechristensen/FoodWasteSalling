@@ -1,94 +1,128 @@
 ﻿@using FoodWasteSalling.Shared.Interfaces;
 @using FoodWasteSalling.Shared.Models;
+@inject IOfferService offerService
 @inject IProductService productService
+@inject NavigationManager Navigation
 
 @page "/products"
+
+
+
+<div class="zipcode-search">
+	<label for="zipcode-input">Indtast postnummer</label>
+	<div class="input-group">
+		<input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
+		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+	</div>
+</div>
 
 <div class="search-container">
 	<i class="search-icon fa fa-search"></i>
 	<input class="search-bar"
-		   placeholder="Søg"
-		   type="text"
-		   @bind="productSearch"
-		   @bind:event="oninput" />
+	placeholder="Søg"
+	type="text"
+	@bind="storeSearch"
+	@bind:event="oninput" />
 </div>
 
 <div class="store-clearances">
 	@foreach (var product in filteredProducts)
 	{
-		<div class="product-offer">
-			<h3>@product.Product.Description</h3>
-			<p>Pris: @product.Offer.OriginalPrice</p>
-			<p>Tilbuds pris: @product.Offer.NewPrice</p>
-			<p>Besparelse i DKK: @product.Offer.Discount</p>
-			<p>Besparelse i %: @product.Offer.Discount%</p>
-
-			<div class="image-container">
-				<img class="product-image"
-					 src="@product.Product.Image"
-					 alt="Product Image"
-					 style="max-width: 100px; max-height: 100px;" />
-			</div>
-		</div>
+		var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product.Ean == product.Product.Ean))?.Store;
+		if (store != null)
+		{
+			<button class="product-button" @onclick="() => ShowProductDetails(product.Product.Ean, store.Id)">
+				<div class="product-offer">
+					<div class="product-info">
+						<h3 class="product-title">@product.Product.Description</h3>
+						<p class="original-price"><s>@product.Offer.OriginalPrice kr</s></p>
+						<p class="new-price">@product.Offer.NewPrice kr</p>
+						<p class="discount-amount">Spar @product.Offer.Discount kr (@product.Offer.PercentDiscount%)</p>
+					</div>
+					<div class="image-container">
+						<img class="product-image"
+						src="@product.Product.Image"
+						alt="Product Image" />
+					</div>
+				</div>
+			</button>
+		}
 	}
+
 </div>
 
 @code {
-	private EveryFoodWaste store;
-
+	// private EveryFoodWaste store;
+	private List<EveryFoodWaste> allStores = new List<EveryFoodWaste>(); // Liste til at gemme butikkerne
 	private List<Clearance> filteredProducts = new List<Clearance>();
+	private int zipcode = 8000;
+	private string currentUri;
+
+	private async Task SearchOnZipcode(int zipcode)
+	{
+		allStores = await offerService.GetStoresAsync(zipcode);
+		foreach (var store in allStores)
+		{
+			filteredProducts.AddRange(store.Clearances);
+		}
+	}
+
+	private string _storeSearch; //Private felt som gemmer værdien af inputtet fra søgningen
+	private string storeSearch   //Bundet til input-feltet for søgning
+	{
+		get => _storeSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		set
+		{
+			_storeSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
+			Console.WriteLine($"Søgestreng ændret til: {value}");
+			FilterStores();      //Kalder FilterEmployees() for at opdatere listen med det samme
+		}
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
-		store = await productService.GetProductsAsync(StoreId);
-		filteredProducts = new List<Clearance>(store.Clearances);
-	}
-	private string _productSearch; //Private felt som gemmer værdien af inputtet fra søgningen
-	private string productSearch   //Bundet til input-feltet for søgning
-	{
-		get => _productSearch; //Henter den aktuelle værdi af det private felt _nameSearch
-		set
-		{
-			_productSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
-			Console.WriteLine($"Søgestreng ændret til: {value}");
-			FilterProducts();      //Kalder FilterEmployees() for at opdatere listen med det samme
-		}
+		await SearchOnZipcode(zipcode);
+		currentUri = Navigation.Uri;
 	}
 
-	private void FilterProducts()
+
+	private void FilterStores()
 	{
-		if (string.IsNullOrWhiteSpace(productSearch))
+		if (string.IsNullOrWhiteSpace(storeSearch))
 		{
-			filteredProducts = new List<Clearance>(store.Clearances);
+			foreach (var store in allStores)
+			{
+				filteredProducts.AddRange(store.Clearances);
+			}
 		}
 		else
 		{
-			var storeSearchToLower = productSearch.ToLower();
-			filteredProducts =
-			store.Clearances.Where(c => c.Product.Description.ToLower().Contains(storeSearchToLower) ||
-			(c.Product.Categories.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.Currency.ToLower().Contains(storeSearchToLower)) ||
-			(c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.EndTime.ToString().Contains(storeSearchToLower))).ToList();
+			var storeSearchToLower = storeSearch.ToLower();
+
+			filteredProducts = allStores.SelectMany(s => s.Clearances.Select
+			(c => new { c, s.Store })).Where(x =>
+			(x.c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
+			(x.c.Product.Categories?.ToString().ToLower().Contains(storeSearchToLower) ?? false) ||
+			(x.c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
+			(x.c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
+			(x.c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
+			(x.c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
+			(x.c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
+			(x.c.Offer.EndTime.ToString().Contains(storeSearchToLower)))
+			.Select(x => x.c)
+			.ToList();
 		}
 	}
 
-	private async Task ShowImage(Clearance item)
-	{
-		if (!item.IsImageVisible) // Kun hvis billedet ikke allerede er synligt
-		{
-			await Task.Delay(800);  // Vent i 2 sekunder før visning af billede
-			item.IsImageVisible = true; // Gør billedet synligt
-			StateHasChanged(); // Trigger en opdatering af UI
-		}
-	}
 
-	private void HideImage(Clearance item)
+	private void ShowProductDetails(string ean, string storeId)
 	{
-		item.IsImageVisible = false;
-		StateHasChanged();  // Trigger a re-render
+		var currentUri = Navigation.Uri;
+
+		// Kod URL'en korrekt
+		var encodedUri = Uri.EscapeDataString(currentUri);
+
+		// Naviger til produktdetaljesiden med de nødvendige parametre
+		Navigation.NavigateTo($"/productdetails/{ean}/{storeId}/{encodedUri}");
 	}
 }

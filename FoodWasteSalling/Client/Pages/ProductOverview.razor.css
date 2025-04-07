@@ -1,28 +1,4 @@
-﻿.store-header {
-    background-color: #f1f5f9;
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    margin: 2rem auto;
-    max-width: 800px;
-    font-family: sans-serif;
-    text-align: left;
-}
-
-    .store-header h2 {
-        margin: 0 0 1rem 0;
-        color: #2b6cb0;
-        font-size: 1.8rem;
-    }
-
-.store-address p {
-    margin: 0.2rem 0;
-    font-size: 1rem;
-    color: #444;
-}
-
-
-.search-container {
+﻿.search-container {
     position: relative; /* Establishes a positioning context for the `.search-icon` to align itself within this container */
     margin-bottom: 25px; /*SPace between searchbar and our table data*/
 }
@@ -33,7 +9,7 @@
     left: 8px; /* Positions the icon 8px from the left edge of the `search-container` */
     transform: translateY(-50%); /* Vertically centers the icon by shifting it up*/
     font-size: 16px; /* Sets the size of the icon */
-    color: #f1f5f9; /* Change the color of the icon */
+    color: gray; /* Change the color of the icon */
 }
 
 .search-bar {
@@ -53,6 +29,53 @@
         outline: none; /*Needed for box-shadow*/
         box-shadow: 0px 0px 7px black; /* Subtle black glow - [horizontal-offset] [vertical-offset] [blur-radius] */
     }
+
+.zipcode-search {
+    max-width: 400px;
+    margin: 2rem auto 1rem auto;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+    .zipcode-search label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #444;
+    }
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+    .input-group input[type="number"] {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 150px;
+    }
+
+.btn-search {
+    padding: 0.5rem 1rem;
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .btn-search:hover {
+        background-color: #2d3748;
+    }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 .store-clearances {
     display: grid;
@@ -119,4 +142,3 @@
     border-radius: 8px;
     border: 1px solid #ddd;
 }
-

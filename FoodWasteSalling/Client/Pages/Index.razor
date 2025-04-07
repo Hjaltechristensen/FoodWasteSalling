@@ -1,6 +1,6 @@
 ﻿@using FoodWasteSalling.Shared.Models;
 @using FoodWasteSalling.Shared.Interfaces;
-@page "/"
+@page "/stores"
 
 <div class="search-container">
 	<i class="search-icon fa fa-search"></i>
@@ -11,48 +11,39 @@
 	@bind:event="oninput"/>
 </div>
 
-<div>
-	<p>Indtast postnummer</p>
-	<input type="number" placeholder="Postnummer" @bind-value="zipcode"/>
-	<button @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+<div class="zipcode-search">
+	<label for="zipcode-input">Indtast postnummer</label>
+	<div class="input-group">
+		<input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
+		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+	</div>
 </div>
 
 @if (filteredStores == null)
 {
-	<p><em>Ingen butikker fundet.</em></p>
+	<p class="no-results"><em>Ingen butikker fundet.</em></p>
 }
 else
 {
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Navn</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var store in filteredStores)
-			{
-				<tr>
-					<!-- Gør hele rækken til en klikbar knap -->
-					<td class="cell">
-						<button class="storebutton" @onclick="() => ShowStoreDetails(store.Store.Id)">
-							@store.Store.Name
-						</button>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<div class="store-list">
+		@foreach (var store in filteredStores)
+		{
+			<button class="store-card" @onclick="() => ShowStoreDetails(store.Store.Id)">
+				<h4>@store.Store.Name</h4>
+			</button>
+		}
+	</div>
 
 	@if (selectedStore != null)
 	{
 		<div class="store-details">
 			<h3>@selectedStore.Store.Name</h3>
-			<p>Brand: @selectedStore.Store.Brand</p>
-			<p>Adresse: @selectedStore.Store.Address</p>
+			<p><strong>Brand:</strong> @selectedStore.Store.Brand</p>
+			<p><strong>Adresse:</strong> @selectedStore.Store.Address</p>
 		</div>
 	}
 }
+
 
 
 
