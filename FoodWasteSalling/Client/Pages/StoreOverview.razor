@@ -65,6 +65,10 @@ else
 	{
 		store = await OfferService.GetStoreByIdAsync(StoreId);
 		filteredProducts = new List<Clearance>(store.Clearances);
+		foreach (var clearance in store.Clearances)
+		{
+			clearance?.Product?.SplitCategories();
+		}
 		currentUri = Navigation.Uri;
 	}
 
@@ -101,16 +105,20 @@ else
 		else
 		{
 			var storeSearchToLower = storeSearch.ToLower();
-			filteredProducts =
-			store.Clearances.Where(c => c.Product.Description.ToLower().Contains(storeSearchToLower) ||
-			(c.Product.Categories.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.Currency.ToLower().Contains(storeSearchToLower)) ||
-			(c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
-			(c.Offer.EndTime.ToString().Contains(storeSearchToLower))).ToList();
+			filteredProducts = store.Clearances
+				.Where(c =>
+					(c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
+					(c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
+					(c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
+					c.Offer.Discount.ToString().Contains(storeSearchToLower) ||
+					c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower) ||
+					c.Offer.NewPrice.ToString().Contains(storeSearchToLower) ||
+					c.Offer.StartTime.ToString().Contains(storeSearchToLower) ||
+					c.Offer.EndTime.ToString().Contains(storeSearchToLower)
+				)
+				.ToList();
 		}
+
 	}
 
 	private async Task ShowImage(Clearance item)

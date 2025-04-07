@@ -52,8 +52,9 @@
 
 @code {
 	// private EveryFoodWaste store;
-	private List<EveryFoodWaste> allStores = new List<EveryFoodWaste>(); // Liste til at gemme butikkerne
-	private List<Clearance> filteredProducts = new List<Clearance>();
+	private List<EveryFoodWaste> allStores = new(); // Liste til at gemme butikkerne
+	private List<Clearance> filteredProducts = new();
+	private List<Product> processedProducts = new();
 	private int zipcode = 8000;
 	private string? currentUri;
 
@@ -82,6 +83,18 @@
 	{
 		await SearchOnZipcode(zipcode);
 		currentUri = Navigation.Uri;
+
+		// Kør split på kategorier for alle produkter
+		foreach (var store in allStores)
+		{
+			foreach (var clearance in store.Clearances)
+			{
+				clearance?.Product?.SplitCategories();
+			}
+		}
+
+		// Fyld filteredProducts hvis du vil vise dem med det samme
+		filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
 	}
 
 
@@ -101,7 +114,7 @@
 			filteredProducts = allStores.SelectMany(s => s.Clearances.Select
 			(c => new { c, s.Store })).Where(x =>
 			(x.c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
-			(x.c.Product.Categories?.ToString().ToLower().Contains(storeSearchToLower) ?? false) ||
+			(x.c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
 			(x.c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
 			(x.c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
 			(x.c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
