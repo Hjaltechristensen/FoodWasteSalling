@@ -5,16 +5,10 @@ using System.Net.Http.Json;
 
 namespace FoodWasteSalling.Client.Services
 {
-	public class OfferService : IOfferService
+	public class OfferService(HttpClient httpClient, NavigationManager navManager) : IOfferService
 	{
-		private readonly HttpClient _httpClient;
-		private readonly NavigationManager _navManager;
-
-		public OfferService(HttpClient httpClient, NavigationManager navManager)
-		{
-			_httpClient = httpClient;
-			_navManager = navManager;
-		}
+		private readonly HttpClient _httpClient = httpClient;
+		private readonly NavigationManager _navManager = navManager;
 
 		public async Task<EveryFoodWaste> GetStoreByIdAsync(string storeId)
 		{
