@@ -111,6 +111,7 @@ else
 					(c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
 					(c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
 					c.Offer.Discount.ToString().Contains(storeSearchToLower) ||
+					c.Offer.PercentDiscount.ToString().Contains(storeSearchToLower) ||
 					c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower) ||
 					c.Offer.NewPrice.ToString().Contains(storeSearchToLower) ||
 					c.Offer.StartTime.ToString().Contains(storeSearchToLower) ||
