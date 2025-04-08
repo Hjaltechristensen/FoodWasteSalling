@@ -5,8 +5,6 @@
 
 @page "/products"
 
-
-
 <div class="zipcode-search">
 	<label for="zipcode-input">Indtast postnummer</label>
 	<div class="input-group">
@@ -47,12 +45,10 @@
 			</button>
 		}
 	}
-
 </div>
 
 @code {
-	// private EveryFoodWaste store;
-	private List<EveryFoodWaste> allStores = new(); // Liste til at gemme butikkerne
+	private List<EveryFoodWaste> allStores = new();
 	private List<Clearance> filteredProducts = new();
 	private List<Product> processedProducts = new();
 	private int zipcode = 8000;
@@ -67,15 +63,14 @@
 		}
 	}
 
-	private string _storeSearch; //Private felt som gemmer værdien af inputtet fra søgningen
-	private string storeSearch   //Bundet til input-feltet for søgning
+	private string _storeSearch;
+	private string storeSearch
 	{
-		get => _storeSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		get => _storeSearch;
 		set
 		{
-			_storeSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
-			Console.WriteLine($"Søgestreng ændret til: {value}");
-			FilterStores();      //Kalder FilterEmployees() for at opdatere listen med det samme
+			_storeSearch = value;
+			FilterStores();
 		}
 	}
 
@@ -84,7 +79,6 @@
 		await SearchOnZipcode(zipcode);
 		currentUri = Navigation.Uri;
 
-		// Kør split på kategorier for alle produkter
 		foreach (var store in allStores)
 		{
 			foreach (var clearance in store.Clearances)
@@ -92,11 +86,8 @@
 				clearance?.Product?.SplitCategories();
 			}
 		}
-
-		// Fyld filteredProducts hvis du vil vise dem med det samme
 		filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
 	}
-
 
 	private void FilterStores()
 	{
@@ -127,15 +118,10 @@
 		}
 	}
 
-
 	private void ShowProductDetails(string ean, string storeId)
 	{
 		var currentUri = Navigation.Uri;
-
-		// Kod URL'en korrekt
 		var encodedUri = Uri.EscapeDataString(currentUri);
-
-		// Naviger til produktdetaljesiden med de nødvendige parametre
 		Navigation.NavigateTo($"/productdetails/{ean}/{storeId}/{encodedUri}");
 	}
 }

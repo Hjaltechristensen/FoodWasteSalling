@@ -27,10 +27,8 @@
         <p><strong>Slut tidspunkt(udløbsdato):</strong> @clearance?.Offer?.EndTime</p>
         <p><strong>Oprettet:</strong> @clearance?.Offer?.LastUpdate</p>
     </div>
-
     <button class="btn-back" @onclick="GoBack">← Tilbage</button>
 </div>
-
 
 @code {
     [Parameter]
@@ -44,26 +42,17 @@
     private Clearance? clearance;
     private Product? product;
 
-
     protected override async Task OnInitializedAsync()
     {
         store = await OfferService.GetStoreByIdAsync(StoreId);
         clearance = store?.Clearances?.FirstOrDefault(c => c.Product?.Ean == Ean);
         product = clearance?.Product?.Ean == Ean ? clearance.Product : null;
 
-        // Dekod det tidligere URI, hvis nødvendigt
         var decodedUri = Uri.UnescapeDataString(CurrentUri);
-
-        Console.WriteLine($"EAN: {Ean}");
-        Console.WriteLine($"StoreId: {StoreId}");
-        Console.WriteLine($"Previous URI: {decodedUri}");
-
-        // Din logik til at håndtere den tidligere URI, EAN, og StoreId.
     }
 
 	private void GoBack()
 	{
-        // Naviger tilbage til den forrige URI
         if (!string.IsNullOrEmpty(CurrentUri))
         {
             Navigation.NavigateTo(CurrentUri);

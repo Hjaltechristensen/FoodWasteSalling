@@ -4,7 +4,6 @@
 @inject IOfferService OfferService
 @inject NavigationManager Navigation
 
-
 @if (store is null)
 {
 	<p>Loading...</p>
@@ -19,7 +18,6 @@ else
 			<p><strong>Adresse:</strong> @store?.Store?.Address?.Street</p>
 		</div>
 	</div>
-
 }
 
 <div class="search-container">
@@ -49,17 +47,17 @@ else
 				</div>
 			</div>
 		</button>
-
-
 	}
 </div>
 
 @code {
-	[Parameter] public string StoreId { get; set; } = null!;
-	private EveryFoodWaste store = null!;
-	private string currentUri = null!;
+	[Parameter] 
+	public string StoreId { get; set; } = null!;
 
+	private EveryFoodWaste store = null!;
 	private List<Clearance> filteredProducts = new List<Clearance>();
+
+	private string currentUri = null!;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -72,29 +70,23 @@ else
 		currentUri = Navigation.Uri;
 	}
 
-	private string _storeSearch; //Private felt som gemmer værdien af inputtet fra søgningen
-	private string storeSearch   //Bundet til input-feltet for søgning
+	private string _storeSearch;
+	private string storeSearch
 	{
-		get => _storeSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		get => _storeSearch;
 		set
 		{
-			_storeSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
-			Console.WriteLine($"Søgestreng ændret til: {value}");
-			FilterStores();      //Kalder FilterEmployees() for at opdatere listen med det samme
+			_storeSearch = value;
+			FilterStores();
 		}
 	}
 
 	private void ShowProductDetails(string ean)
 	{
 		var currentUri = Navigation.Uri;
-
-		// Kod URL'en korrekt
 		var encodedUri = Uri.EscapeDataString(currentUri);
-
-		// Naviger til produktdetaljesiden med de nødvendige parametre
 		Navigation.NavigateTo($"/productdetails/{ean}/{StoreId}/{encodedUri}");
 	}
-
 
 	private void FilterStores()
 	{
@@ -119,22 +111,5 @@ else
 				)
 				.ToList();
 		}
-
-	}
-
-	private async Task ShowImage(Clearance item)
-	{
-		if (!item.IsImageVisible) // Kun hvis billedet ikke allerede er synligt
-		{
-			await Task.Delay(800);  // Vent i 2 sekunder før visning af billede
-			item.IsImageVisible = true; // Gør billedet synligt
-			StateHasChanged(); // Trigger en opdatering af UI
-		}
-	}
-
-	private void HideImage(Clearance item)
-	{
-		item.IsImageVisible = false;
-		StateHasChanged();  // Trigger a re-render
 	}
 }

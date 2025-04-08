@@ -1,11 +1,17 @@
 ﻿@using FoodWasteSalling.Shared.Models;
 @using FoodWasteSalling.Shared.Interfaces;
+
 @page "/stores"
 
 <div class="zipcode-search">
 	<label for="zipcode-input">Indtast postnummer</label>
 	<div class="input-group">
-		<input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
+		<input id="zipcode-input"
+			   type="number"
+			   placeholder="Postnummer"
+			   @bind="zipcode"
+			   @bind:event="oninput"
+			   @onkeydown="HandleKeyDown" />
 		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
 	</div>
 </div>
@@ -44,29 +50,25 @@ else
 	}
 }
 
-
-
-
 @code {
 
-	[Inject] 
+	[Inject]
 	IOfferService OfferService { get; set; } = null!;
-	[Inject] 
+	[Inject]
 	private NavigationManager Navigation { get; set; } = null!;
 	private EveryFoodWaste? selectedStore;
 	private List<EveryFoodWaste> everyThing = new List<EveryFoodWaste>();
 	private List<EveryFoodWaste> filteredStores = new List<EveryFoodWaste>();
 	private int zipcode = 8000;
 
-	private string _storeSearch; //Private felt som gemmer værdien af inputtet fra søgningen
-	private string storeSearch   //Bundet til input-feltet for søgning
+	private string _storeSearch;
+	private string storeSearch
 	{
-		get => _storeSearch; //Henter den aktuelle værdi af det private felt _nameSearch
+		get => _storeSearch;
 		set
 		{
-			_storeSearch = value;    //Opdaterer det pribate felt _nameSearch med den nye værdi
-			Console.WriteLine($"Søgestreng ændret til: {value}");
-			FilterStores();      //Kalder FilterEmployees() for at opdatere listen med det samme
+			_storeSearch = value;
+			FilterStores();
 		}
 	}
 
@@ -82,8 +84,7 @@ else
 
 	private async Task SearchOnZipcode(int zipcode)
 	{
-		everyThing = await OfferService.GetStoresAsync(zipcode);
-		filteredStores = everyThing;
+		filteredStores = await OfferService.GetStoresAsync(zipcode);
 	}
 
 	private void FilterStores()
@@ -98,6 +99,13 @@ else
 			filteredStores =
 			everyThing.Where(c => c.Store.Name.ToLower().Contains(storeSearchToLower) ||
 			(c.Store.Brand.ToLower().Contains(storeSearchToLower))).ToList();
+		}
+	}
+	private async void HandleKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key == "Enter")
+		{
+			await SearchOnZipcode(zipcode);
 		}
 	}
 }
