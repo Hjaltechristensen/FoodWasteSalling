@@ -42,8 +42,8 @@ else
 				</div>
 				<div class="image-container">
 					<img class="product-image"
-					src="@product?.Product?.Image"
-					alt="Product Image" />
+						 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+						 alt="Product Image" />
 				</div>
 			</div>
 		</button>

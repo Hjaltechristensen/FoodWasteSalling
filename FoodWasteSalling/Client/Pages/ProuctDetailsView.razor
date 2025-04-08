@@ -6,7 +6,8 @@
 
 <div class="product-card">
     <div class="product-header">
-        <img class="product-image" src="@product?.Image" alt="Product Image" />
+        <img class="product-image" src="@((product?.Image != null) ? product?.Image : "noimage.png")"
+             alt="Product Image" />
         <div>
             <h1 class="store-name">@store?.Store?.Name</h1>
             <h3 class="product-description">@product?.Description</h3>

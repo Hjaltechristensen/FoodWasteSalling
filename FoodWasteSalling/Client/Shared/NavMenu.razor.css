@@ -45,7 +45,7 @@
         color: #2d3748;
         text-decoration: none;
         font-size: 1rem;
-        transition: color 0.2s ease-in-out;
+        transition: color 0.5s ease-in-out;
         display: inline-block; /* Gør linket til et blok-element for at kunne tilføje padding */
         padding: 35px 25px; /* Skaber en usynlig klikbar zone rundt om linket */
         border-radius: 5px; /* (Valgfrit) Runder hjørnerne af */
