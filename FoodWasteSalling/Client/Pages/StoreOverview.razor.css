@@ -29,12 +29,12 @@
 }
 
 .search-icon {
-    position: absolute; /* Positions the icon relative to the nearest positioned ancestor (the `search-container`) */
-    top: 50%; /* Moves the icon halfway down the height of the `search-container` */
-    left: 8px; /* Positions the icon 8px from the left edge of the `search-container` */
-    transform: translateY(-50%); /* Vertically centers the icon by shifting it up*/
-    font-size: 16px; /* Sets the size of the icon */
-    color: #f1f5f9; /* Change the color of the icon */
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #f1f5f9;
 }
 
 .search-bar {
@@ -50,9 +50,9 @@
 }
 
     .search-bar:focus {
-        background-color: white; /* Background changes to white, makes it clearer that it's in focus*/
-        outline: none; /*Needed for box-shadow*/
-        box-shadow: 0px 0px 7px black; /* Subtle black glow - [horizontal-offset] [vertical-offset] [blur-radius] */
+        background-color: white;
+        outline: none;
+        box-shadow: 0px 0px 7px black;
     }
 
 .store-clearances {

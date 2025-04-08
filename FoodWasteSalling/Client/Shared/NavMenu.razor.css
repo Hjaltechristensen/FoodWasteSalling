@@ -10,26 +10,25 @@
 
 .navbar-content {
     display: flex;
-    justify-content: center; /* Centrerer indholdet i forhold til skærmen */
+    justify-content: center;
     align-items: center;
-    max-width: 1200px; /* Max bredde */
-    width: 100%; /* Gør navbaren fuld bredde */
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
 }
 
 .navbar-logo {
-    margin-right: auto; /* Sørger for, at logoet er til venstre */
+    margin-right: auto;
 }
 
 .logo-image {
-    max-width: 200px; /* Juster størrelsen på logoet */
-    height: auto; /* Sørger for, at billedet bevarer sin proportion */
+    max-width: 200px;
+    height: auto;
 }
 
-/* Menuen */
 .navbar-menu {
     display: flex;
-    justify-content: center; /* Centrerer menuen */
+    justify-content: center;
 }
 
     .navbar-menu ul {
@@ -46,18 +45,17 @@
         text-decoration: none;
         font-size: 1rem;
         transition: color 0.5s ease-in-out;
-        display: inline-block; /* Gør linket til et blok-element for at kunne tilføje padding */
-        padding: 35px 25px; /* Skaber en usynlig klikbar zone rundt om linket */
-        border-radius: 5px; /* (Valgfrit) Runder hjørnerne af */
+        display: inline-block;
+        padding: 35px 25px;
+        border-radius: 5px;
     }
 
         .navbar-menu li a:hover {
             color: #63b3ed;
-            background-color: white; /* (Valgfrit) Ændrer baggrundsfarve ved hover */
-            cursor: pointer; /* Ændrer musemarkøren til en hånd ved hover */
+            background-color: white;
+            cursor: pointer;
         }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .navbar-content {
         flex-direction: column;
