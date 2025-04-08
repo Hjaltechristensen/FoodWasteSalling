@@ -24,8 +24,10 @@
 
 
 .search-container {
-    position: relative; /* Establishes a positioning context for the `.search-icon` to align itself within this container */
-    margin-bottom: 25px; /*SPace between searchbar and our table data*/
+    position: relative;
+    margin-bottom: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .search-icon {
@@ -98,7 +100,7 @@
 
 .new-price {
     font-size: 1.5rem;
-    color: #38a169; /* grøn farve */
+    color: #38a169;
     font-weight: bold;
     margin: 0.2rem 0;
 }
@@ -110,7 +112,7 @@
 
 .discount-amount {
     font-size: 0.9rem;
-    color: #e53e3e; /* rød farve */
+    color: #e53e3e;
 }
 
 .product-image {

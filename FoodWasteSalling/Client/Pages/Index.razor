@@ -39,15 +39,6 @@ else
 			</button>
 		}
 	</div>
-
-	@if (selectedStore != null)
-	{
-		<div class="store-details">
-			<h3>@selectedStore?.Store?.Name</h3>
-			<p><strong>Brand:</strong> @selectedStore?.Store?.Brand</p>
-			<p><strong>Adresse:</strong> @selectedStore?.Store?.Address</p>
-		</div>
-	}
 }
 
 @code {
@@ -56,7 +47,6 @@ else
 	IOfferService OfferService { get; set; } = null!;
 	[Inject]
 	private NavigationManager Navigation { get; set; } = null!;
-	private EveryFoodWaste? selectedStore;
 	private List<EveryFoodWaste> everyThing = new List<EveryFoodWaste>();
 	private List<EveryFoodWaste> filteredStores = new List<EveryFoodWaste>();
 	private int zipcode = 8000;

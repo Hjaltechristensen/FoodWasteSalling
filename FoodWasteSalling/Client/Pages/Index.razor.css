@@ -1,15 +1,17 @@
 ﻿.search-container {
-    position: relative; /* Establishes a positioning context for the `.search-icon` to align itself within this container */
-    margin-bottom: 25px; /*SPace between searchbar and our table data*/
+    position: relative;
+    margin-bottom: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .search-icon {
-    position: absolute; /* Positions the icon relative to the nearest positioned ancestor (the `search-container`) */
-    top: 50%; /* Moves the icon halfway down the height of the `search-container` */
-    left: 8px; /* Positions the icon 8px from the left edge of the `search-container` */
-    transform: translateY(-50%); /* Vertically centers the icon by shifting it up*/
-    font-size: 16px; /* Sets the size of the icon */
-    color: gray; /* Change the color of the icon */
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: gray;
 }
 
 .search-bar {
@@ -25,9 +27,9 @@
 }
 
     .search-bar:focus {
-        background-color: white; /* Background changes to white, makes it clearer that it's in focus*/
-        outline: none; /*Needed for box-shadow*/
-        box-shadow: 0px 0px 7px black; /* Subtle black glow - [horizontal-offset] [vertical-offset] [blur-radius] */
+        background-color: white;
+        outline: none;
+        box-shadow: 0px 0px 7px black;
     }
 
 .zipcode-search {
@@ -89,7 +91,9 @@ input[type=number]::-webkit-outer-spin-button {
     gap: 1rem;
     margin: 2rem auto;
     max-width: 600px;
+    grid-template-columns: repeat(2, 1fr); /* To kolonner */
 }
+
 
 .store-card {
     width: 100%;
