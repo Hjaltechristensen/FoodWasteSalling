@@ -3,8 +3,8 @@
     padding: 1.5rem 2rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    margin: 0.1rem auto;
-    margin-bottom: 1rem;
+    margin: 0.7rem auto;
+    margin-bottom: 0.6rem;
     max-width: 800px;
     font-family: sans-serif;
     text-align: left;
@@ -123,3 +123,33 @@
     border: 1px solid #ddd;
 }
 
+.sort-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 5px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: normal;
+    margin-left: 15px;
+}
+
+    .sort-button:hover {
+        background-color: #e0e0e0;
+        color: black;
+        transform: scale(1.02);
+    }
+
+.active-sort {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);
+}
+
+    .active-sort:hover {
+        background-color: #007bff;
+        color: white;
+        transform: scale(1.02);
+    }

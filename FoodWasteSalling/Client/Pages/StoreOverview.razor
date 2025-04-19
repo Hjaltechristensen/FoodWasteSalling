@@ -29,10 +29,19 @@ else
 	@bind:event="oninput" />
 </div>
 
+<div class="sort-buttons-container">
+	<span>Sortér efter:</span>
+	<button class="sort-button @(selectedSort == "name" ? "active-sort" : "")" @onclick="@(() => SetSort("name"))">Navn (A-Å)</button>
+	<button class="sort-button @(selectedSort == "priceAsc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceAsc"))">Pris ↑</button>
+	<button class="sort-button @(selectedSort == "priceDesc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceDesc"))">Pris ↓</button>
+	<button class="sort-button @(selectedSort == "discount" ? "active-sort" : "")" @onclick="@(() => SetSort("discount"))">Største rabat</button>
+	<button class="sort-button @(selectedSort == "discountPercent" ? "active-sort" : "")" @onclick="@(() => SetSort("discountPercent"))">Største rabat %</button>
+</div>
+
 <div class="store-clearances">
 	@foreach (var product in filteredProducts)
 	{
-		<button class="product-button" @onclick="() => ShowProductDetails(product.Product.Ean)">
+		<button class="product-button" @onclick="() => ShowProductDetails(product?.Product?.Ean)">
 			<div class="product-offer">
 				<div class="product-info">
 					<h3 class="product-title">@product?.Product?.Description</h3>
@@ -42,8 +51,8 @@ else
 				</div>
 				<div class="image-container">
 					<img class="product-image"
-						 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
-						 alt="Product Image" />
+					src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+					alt="Product Image" />
 				</div>
 			</div>
 		</button>
@@ -57,6 +66,8 @@ else
 	private EveryFoodWaste store = null!;
 	private List<Clearance> filteredProducts = new List<Clearance>();
 
+	private string selectedSort = "name";
+
 	private string currentUri = null!;
 
 	protected override async Task OnInitializedAsync()
@@ -68,6 +79,7 @@ else
 			clearance?.Product?.SplitCategories();
 		}
 		currentUri = Navigation.Uri;
+		SortFilteredProducts();
 	}
 
 	private string _storeSearch;
@@ -78,6 +90,43 @@ else
 		{
 			_storeSearch = value;
 			FilterStores();
+		}
+	}
+
+	private void SetSort(string sortType)
+	{
+		selectedSort = sortType;
+		SortFilteredProducts();
+	}
+
+	private void SortFilteredProducts()
+	{
+		switch (selectedSort)
+		{
+			case "name":
+				filteredProducts = filteredProducts
+					.OrderBy(p => p?.Product?.Description)
+					.ToList();
+				break;
+			case "priceAsc":
+				filteredProducts = filteredProducts
+					.OrderBy(p => p?.Offer?.NewPrice)
+					.ToList();
+				break;
+			case "priceDesc":
+				filteredProducts = filteredProducts
+					.OrderByDescending(p => p?.Offer?.NewPrice)
+					.ToList();
+				break;
+			case "discountPercent":
+				filteredProducts = filteredProducts
+					.OrderByDescending(p => p?.Offer?.PercentDiscount)
+					.ToList();
+				break;
+			case "discount":
+				filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount)
+				.ToList();
+				break;
 		}
 	}
 

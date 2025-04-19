@@ -22,6 +22,15 @@
 	@bind:event="oninput" />
 </div>
 
+<div class="sort-buttons-container">
+	<span>Sortér efter:</span>
+	<button class="sort-button @(selectedSort == "name" ? "active-sort" : "")" @onclick="@(() => SetSort("name"))">Navn (A-Å)</button>
+	<button class="sort-button @(selectedSort == "priceAsc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceAsc"))">Pris ↑</button>
+	<button class="sort-button @(selectedSort == "priceDesc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceDesc"))">Pris ↓</button>
+	<button class="sort-button @(selectedSort == "discount" ? "active-sort" : "")" @onclick="@(() => SetSort("discount"))">Største rabat</button>
+	<button class="sort-button @(selectedSort == "discountPercent" ? "active-sort" : "")" @onclick="@(() => SetSort("discountPercent"))">Største rabat %</button>
+</div>
+
 <div class="store-clearances">
 	@foreach (var product in filteredProducts)
 	{
@@ -38,8 +47,8 @@
 					</div>
 					<div class="image-container">
 						<img class="product-image"
-							 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
-							 alt="Product Image" />
+						src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+						alt="Product Image" />
 					</div>
 				</div>
 			</button>
@@ -53,6 +62,8 @@
 	private List<Product> processedProducts = new();
 	private int zipcode = 8000;
 	private string? currentUri;
+
+	private string selectedSort = "name";
 
 	private async Task SearchOnZipcode(int zipcode)
 	{
@@ -87,6 +98,44 @@
 			}
 		}
 		filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
+		SortFilteredProducts();
+	}
+
+	private void SetSort(string sortType)
+	{
+		selectedSort = sortType;
+		SortFilteredProducts();
+	}
+
+	private void SortFilteredProducts()
+	{
+		switch (selectedSort)
+		{
+			case "name":
+				filteredProducts = filteredProducts
+					.OrderBy(p => p?.Product?.Description)
+					.ToList();
+				break;
+			case "priceAsc":
+				filteredProducts = filteredProducts
+					.OrderBy(p => p?.Offer?.NewPrice)
+					.ToList();
+				break;
+			case "priceDesc":
+				filteredProducts = filteredProducts
+					.OrderByDescending(p => p?.Offer?.NewPrice)
+					.ToList();
+				break;
+			case "discountPercent":
+				filteredProducts = filteredProducts
+					.OrderByDescending(p => p?.Offer?.PercentDiscount)
+					.ToList();
+				break;
+			case "discount":
+				filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount)
+				.ToList();
+				break;
+		}
 	}
 
 	private void FilterStores()
