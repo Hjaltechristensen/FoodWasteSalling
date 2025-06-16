@@ -1,0 +1,75 @@
+﻿@using FoodWasteSalling.Shared.Models  <!-- Erstat med dit eget namespace, fx "YourApp.Shared.Models" -->
+@inject IJSRuntime JS
+
+@if (IsOpen && Product != null)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-content" @onclick:stopPropagation>
+            <div class="product-card">
+                <div class="product-header">
+                    <img class="product-image" src="@((Product?.Product?.Image != null) ? Product.Product.Image : "noimage.png")"
+                         alt="Product Image" />
+                    <div>
+                        @* @if (showCloseBox)
+                        {
+                            <div>
+                                Vil du lukke vinude?
+                                <button @onclick="Yessss">Ja</button>
+                                <button @onclick="Nooooo">Nej</button>
+                            </div>
+                        } *@
+                        <h2 class="store-name">@StoreName</h2>
+                        <p class="product-description">@Product?.Product?.Description</p>
+                        @if (Product?.Product?.Categories?.Count != 0)
+                        {
+                            <p class="product-category">Kategori: @Product?.Product?.Categories?["da"]</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="product-details">
+                    <p><strong>Gammel pris:</strong> <s>@Product?.Offer?.OriginalPrice kr</s></p>
+                    <p><strong>Ny pris:</strong> @Product?.Offer?.NewPrice kr</p>
+                    <p><strong>Besparelse i %:</strong> @Product?.Offer?.PercentDiscount %</p>
+                    <p><strong>Besparelse i DKK:</strong> @Product?.Offer?.Discount kr</p>
+                    <p><strong>Antal på lager:</strong> @Product?.Offer?.Stock</p>
+                    <p><strong>Start tidspunkt:</strong> @Product?.Offer?.StartTime</p>
+                    <p><strong>Slut tidspunkt (udløbsdato):</strong> @Product?.Offer?.EndTime</p>
+                    <p><strong>Oprettet:</strong> @Product?.Offer?.LastUpdate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public Clearance? Product { get; set; }
+    [Parameter] public string StoreName { get; set; } = "";
+
+    // private bool wannaClose = false;
+    private bool showCloseBox = false;
+
+    // private async void Yessss()
+    // {
+    //     wannaClose = true;
+    //     await Close();
+    // }
+
+    // private void Nooooo()
+    // {
+    //     showCloseBox = false;
+    // }
+
+    // private void ShowCloseB()
+    // {
+    //     showCloseBox = true;
+    // }
+
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync(null);
+        showCloseBox = false;
+    }
+}

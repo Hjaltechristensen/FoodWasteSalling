@@ -41,7 +41,7 @@ else
 <div class="store-clearances">
 	@foreach (var product in filteredProducts)
 	{
-		<button class="product-button" @onclick="() => ShowProductDetails(product?.Product?.Ean)">
+		<button class="product-button" @onclick="() => OpenProductModal(product)">
 			<div class="product-offer">
 				<div class="product-info">
 					<h3 class="product-title">@product?.Product?.Description</h3>
@@ -51,13 +51,19 @@ else
 				</div>
 				<div class="image-container">
 					<img class="product-image"
-					src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
-					alt="Product Image" />
+						 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+						 alt="Product Image" />
 				</div>
 			</div>
 		</button>
 	}
+
 </div>
+
+<ProductModal IsOpen="isModalOpen"
+			  Product="selectedProduct"
+			  StoreName="@(store?.Store?.Name ?? "")"
+			  OnClose="CloseModal" />
 
 @code {
 	[Parameter] 
@@ -68,7 +74,8 @@ else
 
 	private string selectedSort = "name";
 
-	private string currentUri = null!;
+	private bool isModalOpen = false;
+	private Clearance? selectedProduct = null;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -78,7 +85,6 @@ else
 		{
 			clearance?.Product?.SplitCategories();
 		}
-		currentUri = Navigation.Uri;
 		SortFilteredProducts();
 	}
 
@@ -130,13 +136,6 @@ else
 		}
 	}
 
-	private void ShowProductDetails(string ean)
-	{
-		var currentUri = Navigation.Uri;
-		var encodedUri = Uri.EscapeDataString(currentUri);
-		Navigation.NavigateTo($"/productdetails/{ean}/{StoreId}/{encodedUri}");
-	}
-
 	private void FilterStores()
 	{
 		if (string.IsNullOrWhiteSpace(storeSearch))
@@ -160,5 +159,17 @@ else
 				)
 				.ToList();
 		}
+	}
+	private void OpenProductModal(Clearance product)
+	{
+		selectedProduct = product;
+		isModalOpen = true;
+	}
+
+
+	private void CloseModal()
+	{
+		isModalOpen = false;
+		selectedProduct = null;
 	}
 }

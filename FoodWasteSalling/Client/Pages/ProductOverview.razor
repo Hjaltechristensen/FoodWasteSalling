@@ -37,7 +37,7 @@
 		var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product?.Ean == product?.Product?.Ean))?.Store;
 		if (store != null)
 		{
-			<button class="product-button" @onclick="() => ShowProductDetails(product.Product.Ean, store.Id)">
+			<button class="product-button" @onclick="() => OpenProductModal(product, store.Name)">
 				<div class="product-offer">
 					<div class="product-info">
 						<h3 class="product-title">@product?.Product?.Description</h3>
@@ -56,12 +56,21 @@
 	}
 </div>
 
+<ProductModal @key="selectedProduct"
+			  IsOpen="isModalOpen"
+			  Product="selectedProduct"
+			  StoreName="@storeName"
+			  OnClose="CloseModal" />
+
+
 @code {
 	private List<EveryFoodWaste> allStores = new();
 	private List<Clearance> filteredProducts = new();
 	private List<Product> processedProducts = new();
 	private int zipcode = 8000;
-	private string? currentUri;
+	private bool isModalOpen = false;
+	private Clearance? selectedProduct = null;
+	private string storeName = "";
 
 	private string selectedSort = "name";
 
@@ -88,7 +97,6 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await SearchOnZipcode(zipcode);
-		currentUri = Navigation.Uri;
 
 		foreach (var store in allStores)
 		{
@@ -167,10 +175,16 @@
 		}
 	}
 
-	private void ShowProductDetails(string ean, string storeId)
+	private void OpenProductModal(Clearance product, string _storeName)
 	{
-		var currentUri = Navigation.Uri;
-		var encodedUri = Uri.EscapeDataString(currentUri);
-		Navigation.NavigateTo($"/productdetails/{ean}/{storeId}/{encodedUri}");
+		selectedProduct = product;
+		storeName = _storeName;
+		isModalOpen = true;
+	}
+
+	private void CloseModal()
+	{
+		isModalOpen = false;
+		selectedProduct = null;
 	}
 }
