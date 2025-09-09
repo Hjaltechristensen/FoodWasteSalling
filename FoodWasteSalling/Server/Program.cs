@@ -1,6 +1,5 @@
 using FoodWasteSalling.Server.Services;
 using FoodWasteSalling.Shared.Interfaces;
-using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,16 +9,16 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient<IOfferService, OfferService>();
 
-var baseUrl = builder.Configuration["SallingGroupApi:BaseUrl"];
+var baseUrl = Environment.GetEnvironmentVariable("BASE_URL");
 if (string.IsNullOrEmpty(baseUrl))
 {
-	throw new ArgumentNullException("SallingGroupApi:BaseUrl", "Base URL for Salling Group API is not configured.");
+	throw new ArgumentNullException("SallingGroupApi:BaseUrl, Base URL for Salling Group API is not configured.");
 }
 
 builder.Services.AddHttpClient<IOfferService, OfferService>(client =>
 {
 	client.BaseAddress = new Uri(baseUrl);
-	client.DefaultRequestHeaders.Add("Authorization", $"{builder.Configuration["SallingGroupApi:ApiKey"]}");
+	client.DefaultRequestHeaders.Add("Authorization", $"{Environment.GetEnvironmentVariable("API_KEY")}");
 });
 
 
