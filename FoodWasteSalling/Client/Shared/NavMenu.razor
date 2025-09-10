@@ -1,15 +1,53 @@
-﻿<header class="top-navbar">
+﻿@using System.Text.Json
+@inject NavigationManager Navigation
+@implements IDisposable
+
+
+<header class="top-navbar">
     <div class="navbar-content">
         <a href="/" class="navbar-logo">
             <img src="logo.png" alt="Salling Group Logo" class="logo-image" />
         </a>
 
-
         <nav class="navbar-menu">
             <ul>
-                <li><a href="/stores">Butikker</a></li>
-                <li><a href="/products">Produkter</a></li>
+                <li><a href="/stores" class="@GetNavClass("/stores")">Butikker</a></li>
+                <li><a href="/products" class="@GetNavClass("/products")">Produkter</a></li>
+                <li class="nav-item-with-badge">
+                    <a href="/wishlist" class="@GetNavClass("/wishlist")">
+                        Ønskeliste
+                        @if (matchCount > 0)
+                        {
+                            <span class="badge">@matchCount</span>
+                        }
+                    </a>
+                </li>
+
+
             </ul>
         </nav>
     </div>
 </header>
+
+@code {
+    private int matchCount = 0;
+
+    protected override void OnInitialized()
+    {
+        // WeakReferenceMessenger.Default.Register<BadgeCountChangedMessage>(this, (r, m) =>
+        // {
+        //     matchCount = m.Value;
+        //     InvokeAsync(StateHasChanged); // sikrer UI-opdatering i Blazor
+        // });
+    }
+
+    public void Dispose()
+    {
+        // WeakReferenceMessenger.Default.Unregister<BadgeCountChangedMessage>(this);
+    }
+
+    private string GetNavClass(string href)
+    {
+        return Navigation.Uri.Contains(href) ? "active" : "";
+    }
+}

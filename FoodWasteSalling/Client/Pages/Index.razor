@@ -59,7 +59,7 @@ else
 @code {
 	private List<EveryFoodWaste> everyThing = new List<EveryFoodWaste>();
 	private List<EveryFoodWaste> filteredStores = new List<EveryFoodWaste>();
-	private int zipcode = 8000;
+	private string zipcode = string.Empty;
 	private bool isStoreLoading = true;
 
 	private string _storeSearch;
@@ -81,13 +81,32 @@ else
 	protected override async Task OnInitializedAsync()
 	{
 		isStoreLoading = true;
-		await SearchOnZipcode(zipcode);
-		isStoreLoading = false;
+		try
+		{
+			zipcode = await JS.InvokeAsync<string>("localStorage.getItem", "zipcode");
+			if (string.IsNullOrEmpty(zipcode))
+			{
+				zipcode = "8000";
+			}
+			await SearchOnZipcode(zipcode);
+		}
+		finally
+		{
+			isStoreLoading = false;
+		}
 	}
 
-	private async Task SearchOnZipcode(int zipcode)
+	private async Task SearchOnZipcode(string zipcode)
 	{
-		filteredStores = await OfferService.GetStoresAsync(zipcode);
+		if (zipcode.ToString() != await JS.InvokeAsync<string>("localStorage.getItem", "zipcode"))
+		{
+			await JS.InvokeVoidAsync("localStorage.setItem", "zipcode", zipcode.ToString());
+		}
+		if (!int.TryParse(zipcode, out int zip))
+		{
+			zip = 8000;
+		}
+		filteredStores = await OfferService.GetStoresAsync(zip);
 	}
 
 	private void FilterStores()
@@ -118,9 +137,10 @@ else
 		{
 			var coords = await JS.InvokeAsync<GeoLocation>("getCurrentLocation");
 			var notZip = await DAWAService.GetDAWAZipAsync(coords.Longitude, coords.Latitude);
-			if (int.TryParse(notZip, out int zip))
+			if (notZip is not null)
 			{
-				zipcode = zip;
+				zipcode = notZip;
+				await JS.InvokeAsync<string>("localStorage.setItem", "zipcode", zipcode);
 			}
 		}
 		catch (Exception ex)

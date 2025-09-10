@@ -1,0 +1,66 @@
+﻿.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 90%;
+    max-width: 600px;
+}
+
+.skeleton {
+    background-color: #ddd;
+    border-radius: 4px;
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-title {
+    width: 70%;
+    height: 20px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-subtitle {
+    width: 40%;
+    height: 15px;
+    margin-bottom: 0.3rem;
+}
+
+.skeleton-price {
+    width: 50%;
+    height: 18px;
+}
+
+.skeleton-image {
+    width: 100px;
+    height: 100px;
+    background-color: #ccc;
+    border-radius: 8px;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

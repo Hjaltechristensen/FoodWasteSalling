@@ -85,7 +85,7 @@ else
     private List<EveryFoodWaste> allStores = new();
     private List<Clearance> filteredProducts = new();
     private List<Product> processedProducts = new();
-    private int zipcode = 8000;
+    private string zipcode = string.Empty;
     private bool isModalOpen = false;
     private bool isLoading = true;
     private Clearance? selectedProduct = null;
@@ -93,9 +93,17 @@ else
 
     private string selectedSort = "name";
 
-    private async Task SearchOnZipcode(int zipcode)
+    private async Task SearchOnZipcode(string zipcode)
     {
-        allStores = await offerService.GetStoresAsync(zipcode);
+        if (zipcode != await JS.InvokeAsync<string>("localStorage.getItem", "zipcode"))
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "zipcode", zipcode.ToString());
+        }
+        if (!int.TryParse(zipcode, out int zip))
+        {
+            zip = 8000;
+        }
+        allStores = await offerService.GetStoresAsync(zip);
         foreach (var store in allStores)
         {
             filteredProducts.AddRange(store.Clearances);
@@ -116,18 +124,29 @@ else
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-        await SearchOnZipcode(zipcode);
-
-        foreach (var store in allStores)
+        try
         {
-            foreach (var clearance in store.Clearances)
+            zipcode = await JS.InvokeAsync<string>("localStorage.getItem", "zipcode");
+            if (string.IsNullOrEmpty(zipcode))
             {
-                clearance?.Product?.SplitCategories();
+                zipcode = "8000";
             }
+            await SearchOnZipcode(zipcode);
+
+            foreach (var store in allStores)
+            {
+                foreach (var clearance in store.Clearances)
+                {
+                    clearance?.Product?.SplitCategories();
+                }
+            }
+            filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
+            SortFilteredProducts();
         }
-        filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
-        SortFilteredProducts();
-        isLoading = false;
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void SetSort(string sortType)
@@ -235,9 +254,10 @@ else
         {
             var coords = await JS.InvokeAsync<GeoLocation>("getCurrentLocation");
             var notZip = await DAWAService.GetDAWAZipAsync(coords.Longitude, coords.Latitude);
-            if (int.TryParse(notZip, out int zip))
+            if (notZip is not null)
             {
-                zipcode = zip;
+                zipcode = notZip;
+                await JS.InvokeAsync<string>("localStorage.setItem", "zipcode", zipcode);
             }
         }
         catch (Exception ex)
