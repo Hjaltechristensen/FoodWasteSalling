@@ -1,0 +1,93 @@
+﻿.wishlist-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 1rem;
+    background-color: #f6f6f6;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.wishlist-container2 {
+    position: relative;
+}
+
+.wishlist-title {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.wishlist-input {
+    width: 70%;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.wishlist-button {
+    width: 25%;
+    padding: 0.6rem;
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+    .wishlist-button:hover {
+        background-color: #005fa3;
+    }
+
+.wishlist-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+    .wishlist-list li {
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+    }
+
+.delete-button {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #cc0000;
+}
+
+.empty-message {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+    margin-top: 1rem;
+}
+
+.matched {
+    font-weight: bold;
+    color: green;
+    background-color: beige;
+}
+
+.matched-keyword {
+    font-weight: bold;
+    color: green;
+}
+
+.match-indicator {
+    margin-left: 6px;
+    font-size: 0.8em;
+    color: green;
+}

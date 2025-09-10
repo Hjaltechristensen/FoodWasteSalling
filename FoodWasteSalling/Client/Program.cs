@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<IOfferService, OfferService>();
 builder.Services.AddScoped<IDAWAService, DAWAService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

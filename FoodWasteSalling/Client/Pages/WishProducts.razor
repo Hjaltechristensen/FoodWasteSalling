@@ -1,0 +1,121 @@
+﻿@using FoodWasteSalling.Shared.Models
+@if (!string.IsNullOrWhiteSpace(Keyword))
+{
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                                    background-color: rgba(0,0,0,0.5); display: flex;
+                                    justify-content: center; align-items: center; z-index: 9999;"
+         @onclick="Close">
+
+        <div style="background-color: white; padding: 2rem; border-radius: 12px;
+                                        max-height: 80vh; overflow-y: auto; width: 90%; max-width: 600px;"
+             @onclick:stopPropagation="true">
+
+            @if (Clearances == null)
+            {
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; margin:0.5rem 0; border-radius:12px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);">
+                        <div style="flex: 1; margin-right: 1rem;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-subtitle"></div>
+                            <div class="skeleton skeleton-price"></div>
+                        </div>
+                        <div class="skeleton skeleton-image"></div>
+                    </div>
+                }
+            }
+            else if (Clearances.Any())
+            {
+                <ul style="list-style: none; padding: 0;">
+                    @foreach (var clearance in Clearances)
+                    {
+                        <button style="width: 100%;
+                                       border: none;
+                                       background-color: white;
+                                       padding: 1rem;
+                                       margin: 0.5rem 0;
+                                       text-align: left;
+                                       border-radius: 12px;
+                                       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+                                       cursor: pointer;
+                                       transition: transform 0.1s ease-in-out;" @onclick="() => OpenProductModal(clearance)">
+                            <div style="display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;">
+                                <div style="display: flex;
+                                            flex-direction: column;">
+                                    <h3 style="font-size: 1.1rem;
+                                               color: #333;
+                                               margin-bottom: 0.3rem;">
+                                        @clearance?.Product?.Description
+                                    </h3>
+                                    <p style="color: #999;
+                                              font-size: 0.95rem;"><s>@clearance?.Offer?.OriginalPrice kr</s></p>
+                                    <p style="font-size: 1.5rem;
+                                              color: #38a169;
+                                              font-weight: bold;
+                                              margin: 0.2rem 0;">@clearance?.Offer?.NewPrice kr</p>
+                                    <p style="font-size: 0.9rem;
+                                              color: #e53e3e;">Spar @clearance?.Offer?.Discount kr (@clearance?.Offer?.PercentDiscount%)</p>
+                                </div>
+                                <div class="image-container">
+                                    <img style="width: 100px;
+                                                height: 100px;
+                                                object-fit: cover;
+                                                border-radius: 8px;
+                                                border: 1px solid #ddd;"
+                                         src="@((clearance?.Product?.Image != null) ? clearance?.Product?.Image : "noimage.png")"
+                                         alt="Product Image" />
+                                </div>
+                            </div>
+                            <div>Butik: @clearance?.Store?.Name</div>
+                        </button>
+                    }
+                </ul>
+            }
+            else
+            {
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem; margin:0.5rem 0; border-radius:12px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);">
+                        <div style="flex: 1; margin-right: 1rem;">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-subtitle"></div>
+                            <div class="skeleton skeleton-price"></div>
+                        </div>
+                        <div class="skeleton skeleton-image"></div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<ProductModal @key="selectedProduct"
+              IsOpen="isModalOpen"
+              Product="selectedProduct"
+              OnClose="CloseModal" />
+
+@code {
+    [Parameter] public string Keyword { get; set; } = "";
+    [Parameter] public List<Clearance> Clearances { get; set; } = new();
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private Clearance? selectedProduct;
+    private bool isModalOpen = false;
+    private string storeName = "Ukendt butik";
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        selectedProduct = null;
+    }
+
+    private void Close() => OnClose.InvokeAsync();
+
+    private void OpenProductModal(Clearance product)
+    {
+        selectedProduct = product;
+        isModalOpen = true;
+    }
+}

@@ -1,0 +1,204 @@
+﻿@page "/wishlist"
+@using System.Text.Json
+@using FoodWasteSalling.Shared.Interfaces
+@using FoodWasteSalling.Shared
+@using FoodWasteSalling.Shared.Models
+@inject IOfferService offerService
+@inject IJSRuntime JS
+@inject IWishlistService wishlistService
+
+<h2 class="wishlist-title">Ønskeliste</h2>
+
+<div class="wishlist-container">
+    <div class="wishlist-container2">
+        <input @bind="newWish" @bind:event="oninput" placeholder="Tilføj et ønske..." class="wishlist-input" />
+        <button @onclick="AddWish" class="wishlist-button">Gem</button>
+    </div>
+
+    @if (wishes.Any())
+    {
+        <ul class="wishlist-list">
+            @foreach (var wish in wishes)
+            {
+                <li class="@(wish.HasMatch ? "matched" : "")" @onclick="() => ShowMatchesForKeyword(wish.Keyword)" style="cursor: pointer;">
+                    @wish.Keyword
+                    @if (wish.HasMatch)
+                    {
+                        <span class="match-indicator">✔</span>
+                    }
+                    <button class="delete-button" @onclick:stopPropagation="true" @onclick="() => RemoveWish(wish.Keyword)">🗑️</button>
+                </li>
+
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="empty-message">Du har ingen ønsker endnu.</p>
+    }
+</div>
+
+@if (isModalOpen)
+{
+    <WishProducts Keyword="@selectedKeyword"
+                  Clearances="@matchedClearances"
+                  OnClose="CloseModal" />
+}
+
+
+@code {
+    private string newWish = "";
+    private List<WatchItem> wishes = new();
+    private string selectedKeyword = "";
+    private bool isModalOpen = false;
+    private List<Clearance> matchedClearances = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWishes();
+    }
+
+    private async Task LoadWishes()
+    {
+        var wishlistJson = await JS.InvokeAsync<string>("localStorage.getItem", "wishlist");
+        var zipcode = await JS.InvokeAsync<string>("localStorage.getItem", "zipcode");
+
+        var rawWishes = JsonSerializer.Deserialize<List<string>>(wishlistJson ?? "[]") ?? new();
+        rawWishes = rawWishes.Select(w => w.Trim()).Where(w => !string.IsNullOrWhiteSpace(w)).ToList();
+
+        var matchedKeywords = new List<WatchItem>();
+
+        if (!string.IsNullOrWhiteSpace(zipcode) && int.TryParse(zipcode, out var zip))
+        {
+            var everyFoodWastes = await offerService.GetStoresAsync(zip);
+            var products = everyFoodWastes
+                .Where(e => e.Clearances != null)
+                .SelectMany(e => e.Clearances)
+                .Where(c => c.Product != null)
+                .Select(c => c.Product)
+                .ToList();
+
+            foreach (var keyword in rawWishes)
+            {
+                bool hasMatch = products.Any(p =>
+                    !string.IsNullOrWhiteSpace(p.Description) &&
+                    p.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+                matchedKeywords.Add(new WatchItem { Keyword = keyword, HasMatch = hasMatch });
+            }
+        }
+        else
+        {
+            matchedKeywords = rawWishes.Select(k => new WatchItem { Keyword = k, HasMatch = false }).ToList();
+        }
+
+        wishes = matchedKeywords;
+    }
+
+
+    private async Task SaveWishes()
+    {
+        var json = JsonSerializer.Serialize(wishes);
+        await JS.InvokeVoidAsync("localStorage.setItem", "wishlist", json);
+    }
+
+    private async Task AddWish()
+    {
+        if (!string.IsNullOrWhiteSpace(newWish))
+        {
+            wishes.Add(new WatchItem { Keyword = newWish.Trim(), HasMatch = false });
+            var wishListStrings = wishes.Select(w => w.Keyword).ToList();
+            await JS.InvokeVoidAsync("localStorage.setItem", "wishlist", JsonSerializer.Serialize(wishListStrings));
+
+            newWish = "";
+            await UpdateBadgeAsync();
+            await LoadWishes(); // <- dette er nyt
+        }
+    }
+
+    private async Task RemoveWish(string wish)
+    {
+        wishes.RemoveAll(w => w.Keyword == wish);
+        var wishListStrings = wishes.Select(w => w.Keyword).ToList();
+        await JS.InvokeVoidAsync("localStorage.setItem", "wishlist", JsonSerializer.Serialize(wishListStrings));
+
+        await UpdateBadgeAsync();
+        await LoadWishes(); // <- dette er nyt
+    }
+
+
+    private async Task UpdateBadgeAsync()
+    {
+        var zipcode = await JS.InvokeAsync<string>("localStorage.getItem", "zipcode");
+        var wishlistJson = await JS.InvokeAsync<string>("localStorage.getItem", "wishlist");
+
+        if (string.IsNullOrWhiteSpace(zipcode) || string.IsNullOrWhiteSpace(wishlistJson))
+        {
+            // WeakReferenceMessenger.Default.Send(new BadgeCountChangedMessage(0));
+            return;
+        }
+
+        var wishlist = JsonSerializer.Deserialize<List<string>>(wishlistJson) ?? new();
+        wishlist = wishlist.Select(w => w.Trim()).Where(w => !string.IsNullOrWhiteSpace(w)).ToList();
+
+        if (!int.TryParse(zipcode, out var zip))
+        {
+            // WeakReferenceMessenger.Default.Send(new BadgeCountChangedMessage(0));
+            return;
+        }
+
+        var everyFoodWastes = await offerService.GetStoresAsync(zip);
+
+        var products = everyFoodWastes
+            .Where(e => e.Clearances != null)
+            .SelectMany(e => e.Clearances)
+            .Where(c => c.Product != null)
+            .Select(c =>
+            {
+                c.Product.SplitCategories();
+                return c.Product;
+            }).ToList();
+
+        var matchCount = products.Count(p =>
+            wishlist.Any(keyword =>
+                !string.IsNullOrWhiteSpace(p.Description) &&
+                p.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)));
+
+        // WeakReferenceMessenger.Default.Send(new BadgeCountChangedMessage(matchCount));
+    }
+
+    private async Task ShowMatchesForKeyword(string keyword)
+    {
+        selectedKeyword = keyword;
+        isModalOpen = true;
+
+        var zipcode = await JS.InvokeAsync<string>("localStorage.getItem", "zipcode");
+        if (!int.TryParse(zipcode, out var zip)) return;
+
+        var everyFoodWastes = await offerService.GetStoresAsync(zip);
+        // Her henter vi Clearance-objekter (ikke kun Product)
+        var clearances = everyFoodWastes
+    .Where(e => e.Clearances != null)
+    .SelectMany(e =>
+        e.Clearances.Select(c =>
+        {
+            c.Store = e.Store;  // Sæt butikken på clearance
+            return c;
+        }))
+    .Where(c =>
+        c.Product != null &&
+        !string.IsNullOrWhiteSpace(c.Product.Description) &&
+        c.Product.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+    .ToList();
+
+        matchedClearances = clearances;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        matchedClearances.Clear();
+        selectedKeyword = "";
+    }
+}
