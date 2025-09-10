@@ -1,7 +1,10 @@
-﻿@using FoodWasteSalling.Shared.Models;
-@using FoodWasteSalling.Shared.Interfaces;
-
+﻿@inject IOfferService OfferService
+@inject IDAWAService DAWAService
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
 @page "/stores"
+@using FoodWasteSalling.Shared.Interfaces
+@using FoodWasteSalling.Shared.Models
 
 <div class="zipcode-search">
 	<label for="zipcode-input">Indtast postnummer</label>
@@ -13,6 +16,7 @@
 			   @bind:event="oninput"
 			   @onkeydown="HandleKeyDown" />
 		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+		<button class="position" @onclick="FindPosition">📍</button>
 	</div>
 </div>
 
@@ -25,7 +29,16 @@
 		   @bind:event="oninput" />
 </div>
 
-@if (filteredStores == null)
+@if (isStoreLoading)
+{
+	<div class="store-list">
+		@for (int i = 0; i < 12; i++)
+		{
+			<div class="skeleton-store-card skeleton"></div>
+		}
+	</div>
+}
+else if (filteredStores == null || !filteredStores.Any())
 {
 	<p class="no-results"><em>Ingen butikker fundet.</em></p>
 }
@@ -41,15 +54,13 @@ else
 	</div>
 }
 
-@code {
 
-	[Inject]
-	IOfferService OfferService { get; set; } = null!;
-	[Inject]
-	private NavigationManager Navigation { get; set; } = null!;
+
+@code {
 	private List<EveryFoodWaste> everyThing = new List<EveryFoodWaste>();
 	private List<EveryFoodWaste> filteredStores = new List<EveryFoodWaste>();
 	private int zipcode = 8000;
+	private bool isStoreLoading = true;
 
 	private string _storeSearch;
 	private string storeSearch
@@ -64,12 +75,14 @@ else
 
 	private void ShowStoreDetails(string storeId)
 	{
-		Navigation.NavigateTo($"/store/{storeId}");
+		NavManager.NavigateTo($"/store/{storeId}");
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
+		isStoreLoading = true;
 		await SearchOnZipcode(zipcode);
+		isStoreLoading = false;
 	}
 
 	private async Task SearchOnZipcode(int zipcode)
@@ -96,6 +109,23 @@ else
 		if (e.Key == "Enter")
 		{
 			await SearchOnZipcode(zipcode);
+		}
+	}
+
+	private async Task FindPosition()
+	{
+		try
+		{
+			var coords = await JS.InvokeAsync<GeoLocation>("getCurrentLocation");
+			var notZip = await DAWAService.GetDAWAZipAsync(coords.Longitude, coords.Latitude);
+			if (int.TryParse(notZip, out int zip))
+			{
+				zipcode = zip;
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Fejl ved hentning af position: " + ex.Message);
 		}
 	}
 }

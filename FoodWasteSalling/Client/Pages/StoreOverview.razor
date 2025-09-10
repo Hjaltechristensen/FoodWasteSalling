@@ -1,175 +1,270 @@
-﻿@using FoodWasteSalling.Shared.Interfaces;
-@using FoodWasteSalling.Shared.Models;
-@page "/store/{storeId}"
+﻿@page "/store/{storeId}"
+@using FoodWasteSalling.Shared.Interfaces
+@using FoodWasteSalling.Shared.Models
 @inject IOfferService OfferService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 @if (store is null)
 {
-	<p>Loading...</p>
+    <div class="skeleton-store-header skeleton">
+        <div class="skeleton-store-line title"></div>
+        <div class="skeleton-store-line short"></div>
+        <div class="skeleton-store-line medium"></div>
+        <div class="skeleton-store-line long"></div>
+    </div>
 }
 else
 {
-	<div class="store-header">
-		<h2>@store?.Store?.Name</h2>
-		<div class="store-address">
-			<p><strong>By:</strong> @store?.Store?.Address?.City</p>
-			<p><strong>Postnummer:</strong> @store?.Store?.Address?.Zip</p>
-			<p><strong>Adresse:</strong> @store?.Store?.Address?.Street</p>
-		</div>
-	</div>
+    <div class="store-header">
+        <h2>@store?.Store?.Name</h2>
+        <div class="store-address">
+            <p><strong>By:</strong> @store?.Store?.Address?.City</p>
+            <p><strong>Postnummer:</strong> @store?.Store?.Address?.Zip</p>
+            <p><strong>Adresse:</strong> @store?.Store?.Address?.Street</p>
+        </div>
+        @* <div id="miniMap" class="mini-map" @onclick="OpenMapModal"></div> *@
+    </div>
 }
 
 <div class="search-container">
-	<i class="search-icon fa fa-search"></i>
-	<input class="search-bar"
-	placeholder="Søg"
-	type="text"
-	@bind="storeSearch"
-	@bind:event="oninput" />
+    <i class="search-icon fa fa-search"></i>
+    <input class="search-bar"
+           placeholder="Søg"
+           type="text"
+           @bind="storeSearch"
+           @bind:event="oninput" />
 </div>
 
 <div class="sort-buttons-container">
-	<span>Sortér efter:</span>
-	<button class="sort-button @(selectedSort == "name" ? "active-sort" : "")" @onclick="@(() => SetSort("name"))">Navn (A-Å)</button>
-	<button class="sort-button @(selectedSort == "priceAsc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceAsc"))">Pris ↑</button>
-	<button class="sort-button @(selectedSort == "priceDesc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceDesc"))">Pris ↓</button>
-	<button class="sort-button @(selectedSort == "discount" ? "active-sort" : "")" @onclick="@(() => SetSort("discount"))">Største rabat</button>
-	<button class="sort-button @(selectedSort == "discountPercent" ? "active-sort" : "")" @onclick="@(() => SetSort("discountPercent"))">Største rabat %</button>
+    <span>Sortér efter:</span>
+    <button class="sort-button @(selectedSort.StartsWith("name") ? "active-sort" : "")" @onclick="@(() => ToggleSort("name"))"> Navn @(selectedSort == "nameAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("price") ? "active-sort" : "")" @onclick="@(() => ToggleSort("price"))"> Pris @(selectedSort == "priceAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("discount") && !selectedSort.Contains("Percent") ? "active-sort" : "")" @onclick="@(() => ToggleSort("discount"))"> Rabat DKK @(selectedSort == "discountAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("discountPercent") ? "active-sort" : "")" @onclick="@(() => ToggleSort("discountPercent"))"> Rabat % @(selectedSort == "discountPercentAsc" ? "↑" : "↓") </button>
 </div>
 
 <div class="store-clearances">
-	@foreach (var product in filteredProducts)
-	{
-		<button class="product-button" @onclick="() => OpenProductModal(product)">
-			<div class="product-offer">
-				<div class="product-info">
-					<h3 class="product-title">@product?.Product?.Description</h3>
-					<p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
-					<p class="new-price">@product?.Offer?.NewPrice kr</p>
-					<p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
-				</div>
-				<div class="image-container">
-					<img class="product-image"
-						 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
-						 alt="Product Image" />
-				</div>
-			</div>
-		</button>
-	}
-
+    @if (isProductsLoading)
+    {
+        @for (int i = 0; i < 6; i++)
+        {
+            <div class="skeleton-product-card skeleton">
+                <div class="skeleton-product-info">
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line medium"></div>
+                    <div class="skeleton-line long"></div>
+                </div>
+                <div class="skeleton-image"></div>
+            </div>
+        }
+    }
+    else if (filteredProducts?.Count == 0)
+    {
+        <p class="no-results"><em>Ingen produkter fundet.</em></p>
+    }
+    else
+    {
+        @foreach (var product in filteredProducts)
+        {
+            <button class="product-button" @onclick="() => OpenProductModal(product)">
+                <div class="product-offer">
+                    <div class="product-info">
+                        <h3 class="product-title">@product?.Product?.Description</h3>
+                        <p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
+                        <p class="new-price">@product?.Offer?.NewPrice kr</p>
+                        <p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
+                    </div>
+                    <div class="image-container">
+                        <img class="product-image"
+                             src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+                             alt="Product Image" />
+                    </div>
+                </div>
+            </button>
+        }
+    }
 </div>
 
 <ProductModal IsOpen="isModalOpen"
-			  Product="selectedProduct"
-			  StoreName="@(store?.Store?.Name ?? "")"
-			  OnClose="CloseModal" />
+              Product="selectedProduct"
+              StoreName="@(store?.Store?.Name ?? "")"
+              OnClose="CloseModal" />
+              
+@* <MapModal IsOpen="isMapModalOpen"
+          OnClose="CloseMapModal"
+          Latitude="@lat"
+          Longitude="@lng"
+          Title="@storeName" /> *@
 
 @code {
-	[Parameter] 
-	public string StoreId { get; set; } = null!;
+    [Parameter]
+    public string StoreId { get; set; } = null!;
 
-	private EveryFoodWaste store = null!;
-	private List<Clearance> filteredProducts = new List<Clearance>();
+    private EveryFoodWaste store = null!;
+    private List<Clearance> filteredProducts = new List<Clearance>();
+    private Clearance? selectedProduct = null;
 
-	private string selectedSort = "name";
+    private string selectedSort = "name";
+    private bool isProductsLoading = true;
+    private bool isModalOpen = false;
+    private bool shouldInitializeMap = false;
+    private bool isMapModalOpen = false;
+    double lat;
+    double lng;
+    string storeName = string.Empty;
 
-	private bool isModalOpen = false;
-	private Clearance? selectedProduct = null;
+    // private ElementReference miniMapElement;
+    // private bool mapInitialized = false;
 
-	protected override async Task OnInitializedAsync()
-	{
-		store = await OfferService.GetStoreByIdAsync(StoreId);
-		filteredProducts = new List<Clearance>(store.Clearances);
-		foreach (var clearance in store.Clearances)
-		{
-			clearance?.Product?.SplitCategories();
-		}
-		SortFilteredProducts();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        isProductsLoading = true;
+        store = await OfferService.GetStoreByIdAsync(StoreId);
+        filteredProducts = new List<Clearance>(store.Clearances);
+        foreach (var clearance in store.Clearances)
+        {
+            clearance?.Product?.SplitCategories();
+        }
+        SortFilteredProducts();
+        isProductsLoading = false;
 
-	private string _storeSearch;
-	private string storeSearch
-	{
-		get => _storeSearch;
-		set
-		{
-			_storeSearch = value;
-			FilterStores();
-		}
-	}
+        shouldInitializeMap = true; // 👈 Klar til at initialisere kort
+        StateHasChanged();          // 👉 Tving gen-render, så OnAfterRenderAsync kører igen
+    }
 
-	private void SetSort(string sortType)
-	{
-		selectedSort = sortType;
-		SortFilteredProducts();
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldInitializeMap && store != null)
+        {
+            // shouldInitializeMap = false; // Undgå gentagelse
+            // await InitializeMiniMap();
+        }
+    }
 
-	private void SortFilteredProducts()
-	{
-		switch (selectedSort)
-		{
-			case "name":
-				filteredProducts = filteredProducts
-					.OrderBy(p => p?.Product?.Description)
-					.ToList();
-				break;
-			case "priceAsc":
-				filteredProducts = filteredProducts
-					.OrderBy(p => p?.Offer?.NewPrice)
-					.ToList();
-				break;
-			case "priceDesc":
-				filteredProducts = filteredProducts
-					.OrderByDescending(p => p?.Offer?.NewPrice)
-					.ToList();
-				break;
-			case "discountPercent":
-				filteredProducts = filteredProducts
-					.OrderByDescending(p => p?.Offer?.PercentDiscount)
-					.ToList();
-				break;
-			case "discount":
-				filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount)
-				.ToList();
-				break;
-		}
-	}
+    // private async Task InitializeMiniMap()
+    // {
+    //     if (store?.Store?.Coordinates is not { Count: >= 2 })
+    //         return;
 
-	private void FilterStores()
-	{
-		if (string.IsNullOrWhiteSpace(storeSearch))
-		{
-			filteredProducts = new List<Clearance>(store.Clearances);
-		}
-		else
-		{
-			var storeSearchToLower = storeSearch.ToLower();
-			filteredProducts = store.Clearances
-				.Where(c =>
-					(c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
-					(c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
-					(c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
-					c.Offer.Discount.ToString().Contains(storeSearchToLower) ||
-					c.Offer.PercentDiscount.ToString().Contains(storeSearchToLower) ||
-					c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower) ||
-					c.Offer.NewPrice.ToString().Contains(storeSearchToLower) ||
-					c.Offer.StartTime.ToString().Contains(storeSearchToLower) ||
-					c.Offer.EndTime.ToString().Contains(storeSearchToLower)
-				)
-				.ToList();
-		}
-	}
-	private void OpenProductModal(Clearance product)
-	{
-		selectedProduct = product;
-		isModalOpen = true;
-	}
+    //     lat = store.Store.Coordinates[1];
+    //     lng = store.Store.Coordinates[0];
+    //     storeName = store.Store.Name;
+
+    //     await JS.InvokeVoidAsync("initMiniMap", lat, lng);
+    // }
+
+    private string _storeSearch;
+    private string storeSearch
+    {
+        get => _storeSearch;
+        set
+        {
+            _storeSearch = value;
+            FilterStores();
+        }
+    }
+
+    private void SetSort(string sortType)
+    {
+        selectedSort = sortType;
+        SortFilteredProducts();
+    }
+
+    private void ToggleSort(string key)
+    {
+        if (selectedSort.StartsWith(key))
+        {
+            // Skift mellem asc/desc
+            if (selectedSort.EndsWith("Asc"))
+                selectedSort = key + "Desc";
+            else
+                selectedSort = key + "Asc";
+        }
+        else
+        {
+            selectedSort = key + "Asc";
+        }
+        SortFilteredProducts();
+    }
 
 
-	private void CloseModal()
-	{
-		isModalOpen = false;
-		selectedProduct = null;
-	}
+    private void SortFilteredProducts()
+    {
+        switch (selectedSort)
+        {
+            case "nameAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Product?.Description).ToList();
+                break;
+            case "nameDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Product?.Description).ToList();
+                break;
+            case "priceAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.NewPrice).ToList();
+                break;
+            case "priceDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.NewPrice).ToList();
+                break;
+            case "discountAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.Discount).ToList();
+                break;
+            case "discountDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount).ToList();
+                break;
+            case "discountPercentAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.PercentDiscount).ToList();
+                break;
+            case "discountPercentDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.PercentDiscount).ToList();
+                break;
+            default:
+                filteredProducts = filteredProducts.OrderBy(p => p?.Product?.Description).ToList();
+                break;
+        }
+    }
+
+    private void FilterStores()
+    {
+        if (string.IsNullOrWhiteSpace(storeSearch))
+        {
+            filteredProducts = new List<Clearance>(store.Clearances);
+        }
+        else
+        {
+            var storeSearchToLower = storeSearch.ToLower();
+            filteredProducts = store.Clearances
+                .Where(c =>
+                    (c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
+                    (c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
+                    (c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
+                    c.Offer.Discount.ToString().Contains(storeSearchToLower) ||
+                    c.Offer.PercentDiscount.ToString().Contains(storeSearchToLower) ||
+                    c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower) ||
+                    c.Offer.NewPrice.ToString().Contains(storeSearchToLower) ||
+                    c.Offer.StartTime.ToString().Contains(storeSearchToLower) ||
+                    c.Offer.EndTime.ToString().Contains(storeSearchToLower)).ToList();
+        }
+    }
+    private void OpenProductModal(Clearance product)
+    {
+        selectedProduct = product;
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        selectedProduct = null;
+    }
+
+    // private void OpenMapModal()
+    // {
+    //     isMapModalOpen = true;
+    // }
+
+    // private void CloseMapModal()
+    // {
+    //     isMapModalOpen = false;
+    // }
+
 }

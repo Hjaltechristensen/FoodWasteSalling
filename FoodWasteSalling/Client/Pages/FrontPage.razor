@@ -1,8 +1,8 @@
 ﻿@page "/"
-@inject NavigationManager NavigationManager
+@inject NavigationManager Navigation
 
 <div class="homepage-container">
-    <h1>Velkommen til Salling Group Tilbudsoversigt</h1>
+    <h1>Velkommen til Salling Groups tilbudsoversigt</h1>
     <p>Vælg hvad du vil søge efter:</p>
 
     <div class="homepage-options">
@@ -22,11 +22,11 @@
 @code {
     private void NavigateToStores()
     {
-        NavigationManager.NavigateTo("/stores");
+        Navigation.NavigateTo("/stores");
     }
     private void NavigateToProducts()
     {
-		NavigationManager.NavigateTo("/products");
+        Navigation.NavigateTo("/products");
     }
 }
 

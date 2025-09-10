@@ -1,6 +1,5 @@
 using FoodWasteSalling.Server.Services;
 using FoodWasteSalling.Shared.Interfaces;
-using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,4 @@
-﻿@using FoodWasteSalling.Shared.Models  <!-- Erstat med dit eget namespace, fx "YourApp.Shared.Models" -->
+﻿@using FoodWasteSalling.Shared.Models
 @inject IJSRuntime JS
 
 @if (IsOpen && Product != null)
@@ -7,17 +7,11 @@
         <div class="modal-content" @onclick:stopPropagation>
             <div class="product-card">
                 <div class="product-header">
-                    <img class="product-image" src="@((Product?.Product?.Image != null) ? Product.Product.Image : "noimage.png")"
-                         alt="Product Image" />
+                    <button class="image-button" @onclick="() => OpenImage(Product?.Product?.Image)">
+                        <img class="product-image" src="@((Product?.Product?.Image != null) ? Product.Product.Image : "noimage.png")"
+                             alt="Product Image" />
+                    </button>
                     <div>
-                        @* @if (showCloseBox)
-                        {
-                            <div>
-                                Vil du lukke vinude?
-                                <button @onclick="Yessss">Ja</button>
-                                <button @onclick="Nooooo">Nej</button>
-                            </div>
-                        } *@
                         <h2 class="store-name">@StoreName</h2>
                         <p class="product-description">@Product?.Product?.Description</p>
                         @if (Product?.Product?.Categories?.Count != 0)
@@ -41,6 +35,17 @@
         </div>
     </div>
 }
+@if (openImage)
+{
+    <div class="modal-overlay" @onclick="CloseImage">
+        <div class="modal-content image-modal" @onclick:stopPropagation>
+            <div class="zoom-container">
+                <img id="zoomTarget" src="@selectedImageUrl" alt="Stort billede" class="zoomable-image" />
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
     [Parameter] public bool IsOpen { get; set; }
@@ -48,28 +53,38 @@
     [Parameter] public Clearance? Product { get; set; }
     [Parameter] public string StoreName { get; set; } = "";
 
-    // private bool wannaClose = false;
     private bool showCloseBox = false;
+    private bool openImage = false;
+    private string selectedImageUrl = "";
 
-    // private async void Yessss()
-    // {
-    //     wannaClose = true;
-    //     await Close();
-    // }
+    private void OpenImage(string? image)
+    {
+        if (!string.IsNullOrEmpty(image) || image is "noimage.png")
+        {
+            selectedImageUrl = image;
+            openImage = true;
+        }
+        else
+            openImage = false;
+    }
 
-    // private void Nooooo()
-    // {
-    //     showCloseBox = false;
-    // }
-
-    // private void ShowCloseB()
-    // {
-    //     showCloseBox = true;
-    // }
+    private void CloseImage()
+    {
+        openImage = false;
+        selectedImageUrl = "";
+    }
 
     private async Task Close()
     {
         await OnClose.InvokeAsync(null);
         showCloseBox = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // if (openImage)
+        // {
+        //     await JS.InvokeVoidAsync("enableZoom", "zoomTarget");
+        // }
     }
 }
