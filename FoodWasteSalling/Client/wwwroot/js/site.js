@@ -30,9 +30,6 @@ window.initMiniMap = (lat, lng) => {
         maxZoom: 19
     }).addTo(map);
 
-
-
-
     L.marker([lat, lng]).addTo(map);
 };
 
