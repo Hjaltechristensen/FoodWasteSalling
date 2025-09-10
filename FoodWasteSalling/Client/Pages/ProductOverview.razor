@@ -1,190 +1,248 @@
-﻿@using FoodWasteSalling.Shared.Interfaces;
-@using FoodWasteSalling.Shared.Models;
-@inject IOfferService offerService
+﻿@inject IOfferService offerService
+@inject IDAWAService DAWAService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 @page "/products"
-
+@using FoodWasteSalling.Shared.Interfaces
+@using FoodWasteSalling.Shared.Models
 <div class="zipcode-search">
-	<label for="zipcode-input">Indtast postnummer</label>
-	<div class="input-group">
-		<input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
-		<button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
-	</div>
+    <label for="zipcode-input">Indtast postnummer</label>
+    <div class="input-group">
+        <input id="zipcode-input" type="number" placeholder="Postnummer" @bind-value="zipcode" />
+        <button class="btn-search" @onclick="() => SearchOnZipcode(zipcode)">Søg</button>
+        <button class="position" @onclick="FindPosition">📍</button>
+    </div>
 </div>
 
 <div class="search-container">
-	<i class="search-icon fa fa-search"></i>
-	<input class="search-bar"
-	placeholder="Søg"
-	type="text"
-	@bind="storeSearch"
-	@bind:event="oninput" />
+    <i class="search-icon fa fa-search"></i>
+    <input class="search-bar"
+           placeholder="Søg"
+           type="text"
+           @bind="storeSearch"
+           @bind:event="oninput" />
 </div>
 
 <div class="sort-buttons-container">
-	<span>Sortér efter:</span>
-	<button class="sort-button @(selectedSort == "name" ? "active-sort" : "")" @onclick="@(() => SetSort("name"))">Navn (A-Å)</button>
-	<button class="sort-button @(selectedSort == "priceAsc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceAsc"))">Pris ↑</button>
-	<button class="sort-button @(selectedSort == "priceDesc" ? "active-sort" : "")" @onclick="@(() => SetSort("priceDesc"))">Pris ↓</button>
-	<button class="sort-button @(selectedSort == "discount" ? "active-sort" : "")" @onclick="@(() => SetSort("discount"))">Største rabat</button>
-	<button class="sort-button @(selectedSort == "discountPercent" ? "active-sort" : "")" @onclick="@(() => SetSort("discountPercent"))">Største rabat %</button>
+    <span>Sortér efter:</span>
+    <button class="sort-button @(selectedSort.StartsWith("name") ? "active-sort" : "")" @onclick="@(() => ToggleSort("name"))"> Navn @(selectedSort == "nameAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("price") ? "active-sort" : "")" @onclick="@(() => ToggleSort("price"))"> Pris @(selectedSort == "priceAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("discount") && !selectedSort.Contains("Percent") ? "active-sort" : "")" @onclick="@(() => ToggleSort("discount"))"> Rabat DKK @(selectedSort == "discountAsc" ? "↑" : "↓") </button>
+    <button class="sort-button @(selectedSort.StartsWith("discountPercent") ? "active-sort" : "")" @onclick="@(() => ToggleSort("discountPercent"))"> Rabat % @(selectedSort == "discountPercentAsc" ? "↑" : "↓") </button>
 </div>
 
-<div class="store-clearances">
-	@foreach (var product in filteredProducts)
-	{
-		var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product?.Ean == product?.Product?.Ean))?.Store;
-		if (store != null)
-		{
-			<button class="product-button" @onclick="() => OpenProductModal(product, store.Name)">
-				<div class="product-offer">
-					<div class="product-info">
-						<h3 class="product-title">@product?.Product?.Description</h3>
-						<p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
-						<p class="new-price">@product?.Offer?.NewPrice kr</p>
-						<p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
-					</div>
-					<div class="image-container">
-						<img class="product-image"
-						src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
-						alt="Product Image" />
-					</div>
-				</div>
-			</button>
-		}
-	}
-</div>
+@if (isLoading)
+{
+    <div class="store-clearances">
+        @for (int i = 0; i < 12; i++)
+        {
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+                <div class="skeleton-text">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-line short"></div>
+                    <div class="skeleton skeleton-line"></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="store-clearances">
+        @foreach (var product in filteredProducts)
+        {
+            var store = allStores.FirstOrDefault(s => s.Clearances.Any(c => c.Product?.Ean == product?.Product?.Ean))?.Store;
+            if (store != null)
+            {
+                <button class="product-button" @onclick="() => OpenProductModal(product, store.Name)">
+                    <div class="product-offer">
+                        <div class="product-info">
+                            <h3 class="product-title">@product?.Product?.Description</h3>
+                            <p class="original-price"><s>@product?.Offer?.OriginalPrice kr</s></p>
+                            <p class="new-price">@product?.Offer?.NewPrice kr</p>
+                            <p class="discount-amount">Spar @product?.Offer?.Discount kr (@product?.Offer?.PercentDiscount%)</p>
+                        </div>
+                        <div class="image-container">
+                            <img class="product-image"
+                                 src="@((product?.Product?.Image != null) ? product?.Product?.Image : "noimage.png")"
+                                 alt="Product Image" />
+                        </div>
+                    </div>
+                </button>
+            }
+        }
+    </div>
 
-<ProductModal @key="selectedProduct"
-			  IsOpen="isModalOpen"
-			  Product="selectedProduct"
-			  StoreName="@storeName"
-			  OnClose="CloseModal" />
-
-
+    <ProductModal @key="selectedProduct"
+                  IsOpen="isModalOpen"
+                  Product="selectedProduct"
+                  StoreName="@storeName"
+                  OnClose="CloseModal" />
+}
 @code {
-	private List<EveryFoodWaste> allStores = new();
-	private List<Clearance> filteredProducts = new();
-	private List<Product> processedProducts = new();
-	private int zipcode = 8000;
-	private bool isModalOpen = false;
-	private Clearance? selectedProduct = null;
-	private string storeName = "";
+    private List<EveryFoodWaste> allStores = new();
+    private List<Clearance> filteredProducts = new();
+    private List<Product> processedProducts = new();
+    private int zipcode = 8000;
+    private bool isModalOpen = false;
+    private bool isLoading = true;
+    private Clearance? selectedProduct = null;
+    private string storeName = "";
 
-	private string selectedSort = "name";
+    private string selectedSort = "name";
 
-	private async Task SearchOnZipcode(int zipcode)
-	{
-		allStores = await offerService.GetStoresAsync(zipcode);
-		foreach (var store in allStores)
-		{
-			filteredProducts.AddRange(store.Clearances);
-		}
-	}
+    private async Task SearchOnZipcode(int zipcode)
+    {
+        allStores = await offerService.GetStoresAsync(zipcode);
+        foreach (var store in allStores)
+        {
+            filteredProducts.AddRange(store.Clearances);
+        }
+    }
 
-	private string _storeSearch;
-	private string storeSearch
-	{
-		get => _storeSearch;
-		set
-		{
-			_storeSearch = value;
-			FilterStores();
-		}
-	}
+    private string _storeSearch;
+    private string storeSearch
+    {
+        get => _storeSearch;
+        set
+        {
+            _storeSearch = value;
+            FilterStores();
+        }
+    }
 
-	protected override async Task OnInitializedAsync()
-	{
-		await SearchOnZipcode(zipcode);
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        await SearchOnZipcode(zipcode);
 
-		foreach (var store in allStores)
-		{
-			foreach (var clearance in store.Clearances)
-			{
-				clearance?.Product?.SplitCategories();
-			}
-		}
-		filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
-		SortFilteredProducts();
-	}
+        foreach (var store in allStores)
+        {
+            foreach (var clearance in store.Clearances)
+            {
+                clearance?.Product?.SplitCategories();
+            }
+        }
+        filteredProducts = allStores.SelectMany(s => s.Clearances).ToList();
+        SortFilteredProducts();
+        isLoading = false;
+    }
 
-	private void SetSort(string sortType)
-	{
-		selectedSort = sortType;
-		SortFilteredProducts();
-	}
+    private void SetSort(string sortType)
+    {
+        selectedSort = sortType;
+        SortFilteredProducts();
+    }
 
-	private void SortFilteredProducts()
-	{
-		switch (selectedSort)
-		{
-			case "name":
-				filteredProducts = filteredProducts
-					.OrderBy(p => p?.Product?.Description)
-					.ToList();
-				break;
-			case "priceAsc":
-				filteredProducts = filteredProducts
-					.OrderBy(p => p?.Offer?.NewPrice)
-					.ToList();
-				break;
-			case "priceDesc":
-				filteredProducts = filteredProducts
-					.OrderByDescending(p => p?.Offer?.NewPrice)
-					.ToList();
-				break;
-			case "discountPercent":
-				filteredProducts = filteredProducts
-					.OrderByDescending(p => p?.Offer?.PercentDiscount)
-					.ToList();
-				break;
-			case "discount":
-				filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount)
-				.ToList();
-				break;
-		}
-	}
+    private void ToggleSort(string key)
+    {
+        if (selectedSort.StartsWith(key))
+        {
+            // Skift mellem asc/desc
+            if (selectedSort.EndsWith("Asc"))
+                selectedSort = key + "Desc";
+            else
+                selectedSort = key + "Asc";
+        }
+        else
+        {
+            selectedSort = key + "Asc";
+        }
+        SortFilteredProducts();
+    }
 
-	private void FilterStores()
-	{
-		if (string.IsNullOrWhiteSpace(storeSearch))
-		{
-			foreach (var store in allStores)
-			{
-				filteredProducts.AddRange(store.Clearances);
-			}
-		}
-		else
-		{
-			var storeSearchToLower = storeSearch.ToLower();
 
-			filteredProducts = allStores.SelectMany(s => s.Clearances.Select
-			(c => new { c, s.Store })).Where(x =>
-			(x.c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
-			(x.c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
-			(x.c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
-			(x.c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
-			(x.c.Offer.PercentDiscount.ToString().Contains(storeSearchToLower)) ||
-			(x.c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
-			(x.c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
-			(x.c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
-			(x.c.Offer.EndTime.ToString().Contains(storeSearchToLower)))
-			.Select(x => x.c)
-			.ToList();
-		}
-	}
+    private void SortFilteredProducts()
+    {
+        switch (selectedSort)
+        {
+            case "nameAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Product?.Description).ToList();
+                break;
+            case "nameDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Product?.Description).ToList();
+                break;
+            case "priceAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.NewPrice).ToList();
+                break;
+            case "priceDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.NewPrice).ToList();
+                break;
+            case "discountAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.Discount).ToList();
+                break;
+            case "discountDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.Discount).ToList();
+                break;
+            case "discountPercentAsc":
+                filteredProducts = filteredProducts.OrderBy(p => p?.Offer?.PercentDiscount).ToList();
+                break;
+            case "discountPercentDesc":
+                filteredProducts = filteredProducts.OrderByDescending(p => p?.Offer?.PercentDiscount).ToList();
+                break;
+            default:
+                filteredProducts = filteredProducts.OrderBy(p => p?.Product?.Description).ToList();
+                break;
+        }
+    }
 
-	private void OpenProductModal(Clearance product, string _storeName)
-	{
-		selectedProduct = product;
-		storeName = _storeName;
-		isModalOpen = true;
-	}
 
-	private void CloseModal()
-	{
-		isModalOpen = false;
-		selectedProduct = null;
-	}
+    private void FilterStores()
+    {
+        if (string.IsNullOrWhiteSpace(storeSearch))
+        {
+            foreach (var store in allStores)
+            {
+                filteredProducts.AddRange(store.Clearances);
+            }
+        }
+        else
+        {
+            var storeSearchToLower = storeSearch.ToLower();
+
+            filteredProducts = allStores.SelectMany(s => s.Clearances.Select
+            (c => new { c, s.Store })).Where(x =>
+            (x.c.Product.Description?.ToLower().Contains(storeSearchToLower) ?? false) ||
+            (x.c.Product.SplitCategoryList?.Any(cat => cat.ToLower().Contains(storeSearchToLower)) ?? false) ||
+            (x.c.Offer.Currency?.ToLower().Contains(storeSearchToLower) ?? false) ||
+            (x.c.Offer.Discount.ToString().Contains(storeSearchToLower)) ||
+            (x.c.Offer.PercentDiscount.ToString().Contains(storeSearchToLower)) ||
+            (x.c.Offer.OriginalPrice.ToString().Contains(storeSearchToLower)) ||
+            (x.c.Offer.NewPrice.ToString().Contains(storeSearchToLower)) ||
+            (x.c.Offer.StartTime.ToString().Contains(storeSearchToLower)) ||
+            (x.c.Offer.EndTime.ToString().Contains(storeSearchToLower))).Select(x => x.c).ToList();
+        }
+    }
+
+    private void OpenProductModal(Clearance product, string _storeName)
+    {
+        selectedProduct = product;
+        storeName = _storeName;
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        selectedProduct = null;
+    }
+
+    private async Task FindPosition()
+    {
+        try
+        {
+            var coords = await JS.InvokeAsync<GeoLocation>("getCurrentLocation");
+            var notZip = await DAWAService.GetDAWAZipAsync(coords.Longitude, coords.Latitude);
+            if (int.TryParse(notZip, out int zip))
+            {
+                zipcode = zip;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Fejl ved hentning af position: " + ex.Message);
+        }
+    }
 }

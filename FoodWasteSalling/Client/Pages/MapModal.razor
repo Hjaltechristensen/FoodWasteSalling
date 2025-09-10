@@ -1,0 +1,48 @@
+﻿@inject IJSRuntime JS
+
+@if (IsOpen)
+{
+    <div class="modal-overlay" @onclick="OnClose">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h3>@Title</h3>
+            <div id="fullMap" class="full-map"></div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public double Latitude { get; set; }
+    [Parameter] public double Longitude { get; set; }
+    [Parameter] public string Title { get; set; } = "";
+
+    private bool _wasOpen = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+
+            try
+            {
+                // Kald JS med både butik og evt. brugerens lokation
+                await JS.InvokeVoidAsync("initFullMap", Latitude, Longitude);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fejl ved geolokation: {ex.Message}");
+
+                // Hvis fejl – kald JS uden brugerposition
+                await JS.InvokeVoidAsync("initFullMap", Latitude, Longitude, null, null);
+            }
+        }
+
+        if (!IsOpen)
+        {
+            _wasOpen = false;
+        }
+    }
+
+}
