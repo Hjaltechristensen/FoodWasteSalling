@@ -2,31 +2,47 @@
 @inject NavigationManager Navigation
 
 <div class="homepage-container">
-    <h1>Velkommen til Salling Groups tilbudsoversigt</h1>
+    <h1>Salling Group</h1>
+    <h1>Food waste</h1>
     <p>Vælg hvad du vil søge efter:</p>
 
     <div class="homepage-options">
-        <button class="homepage-box" @onclick="NavigateToStores">
-
+        <button class="homepage-box" @onclick="() => NavigateTo(stores)">
             <h2>Find butik</h2>
             <p>Søg efter butikker i dit område via postnummer</p>
         </button>
 
-        <button class="homepage-box" @onclick="NavigateToProducts">
+        <button class="homepage-box" @onclick="() => NavigateTo(products)">
             <h2>Find produkt</h2>
             <p>Se hvilke produkter der er på tilbud</p>
+        </button>
+
+        <button class="homepage-box" @onclick="() => NavigateTo(wish)">
+            <h2>Ønskeliste</h2>
+            <p>Se dine ønskede produkter</p>
         </button>
     </div>
 </div>
 
 @code {
-    private void NavigateToStores()
+    private string stores = "stores";
+    private string products = "products";
+    private string wish = "wish";
+
+    private void NavigateTo(string nav)
     {
-        Navigation.NavigateTo("/stores");
-    }
-    private void NavigateToProducts()
-    {
-        Navigation.NavigateTo("/products");
+        switch (nav)
+        {
+            case "stores":
+                Navigation.NavigateTo("/stores");
+                break;
+            case "products":
+                Navigation.NavigateTo("/products");
+                break;
+            case "wish":
+                Navigation.NavigateTo("/wishlist");
+                break;
+        }
     }
 }
 
