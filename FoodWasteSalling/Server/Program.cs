@@ -22,9 +22,6 @@ builder.Services.AddHttpClient<IOfferService, OfferService>(client =>
 	client.DefaultRequestHeaders.Add("Authorization", $"{builder.Configuration["SallingGroupApi:ApiKey"]}");
 });
 
-
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
