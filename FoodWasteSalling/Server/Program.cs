@@ -1,5 +1,6 @@
 using FoodWasteSalling.Server.Services;
 using FoodWasteSalling.Shared.Interfaces;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddHttpClient<IOfferService, OfferService>(client =>
 	client.BaseAddress = new Uri(baseUrl);
 	client.DefaultRequestHeaders.Add("Authorization", $"{builder.Configuration["SallingGroupApi:ApiKey"]}");
 });
+
 
 
 
@@ -44,6 +46,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseHttpMetrics();
+app.MapMetrics();
 
 app.MapRazorPages();
 app.MapControllers();
